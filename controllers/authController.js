@@ -1,27 +1,85 @@
-const { User } = require('../models/User'); // পাথ ঠিক আছে কি না চেক করুন
+const { User, Wallet } = require('../models'); 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// রেজিস্ট্রেশন ফাংশন
+// ১. রেজিস্ট্রেশন ফাংশন
 const register = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { 
+            countryName, 
+            firstName, 
+            lastName, 
+            phone, 
+            email, 
+            password, 
+            dateOfBirth 
+        } = req.body;
+
+        // ইমেইল বা ফোন আগে ব্যবহার হয়েছে কি না চেক করা (Optional but Good)
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
+
+        // পাসওয়ার্ড হ্যাশ করা
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await User.create({ name, email, password: hashedPassword });
-        res.status(201).json({ message: "User registered successfully", userId: user.id });
+        
+        // ইউজার তৈরি
+        const user = await User.create({ 
+            countryName, 
+            firstName, 
+            lastName, 
+            phone, 
+            email, 
+            password: hashedPassword,
+            dateOfBirth
+        });
+
+        // ইউজারের জন্য একটি প্রাথমিক ওয়ালেট তৈরি করা (Balance: 0.00)
+        await Wallet.create({ 
+            userId: user.id, 
+            balance: 0.00 
+        });
+        
+        res.status(201).json({ 
+            message: "User registered successfully", 
+            userId: user.id 
+        });
+
     } catch (err) {
+        console.error("Registration Error:", err);
         res.status(500).json({ error: err.message });
     }
 };
 
-// লগইন ফাংশন
+// ২. লগইন ফাংশন
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        // ইউজার খুঁজে বের করা
         const user = await User.findOne({ where: { email } });
+        
         if (user && await bcrypt.compare(password, user.password)) {
-            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            res.json({ token, user: { name: user.name, email: user.email } });
+            // টোকেন তৈরি
+            const token = jwt.sign(
+                { id: user.id }, 
+                process.env.JWT_SECRET, 
+                { expiresIn: '1h' }
+            );
+
+            // রেসপন্সে ইউজারের নতুন ফিল্ডগুলো পাঠানো
+            res.json({ 
+                token, 
+                user: { 
+                    id: user.id,
+                    firstName: user.firstName, 
+                    lastName: user.lastName,
+                    email: user.email,
+                    phone: user.phone,
+                    country: user.countryName
+                } 
+            });
         } else {
             res.status(401).json({ message: "Invalid credentials" });
         }
@@ -30,5 +88,4 @@ const login = async (req, res) => {
     }
 };
 
-// এই লাইনটি খুব জরুরি! সবগুলো ফাংশন এক্সপোর্ট করতে হবে।
 module.exports = { register, login };

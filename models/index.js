@@ -3,19 +3,21 @@ const User = require('./User');
 const Transaction = require('./Transaction');
 const Package = require('./Package');
 const CompanyDoc = require('./CompanyDoc');
-const CurrencyRate = require('./CurrencyRate'); // নতুন যোগ করা কারেন্সি মডেল
+const CurrencyRate = require('./CurrencyRate');
+const Wallet = require('./Wallet')
+// রিলেশনশিপ সেট করা (এটি নিশ্চিত করে যে Sequelize জানে টেবিলগুলোর সম্পর্ক কী)
+if (User && Transaction) {
+    User.hasMany(Transaction, { foreignKey: 'userId' });
+    Transaction.belongsTo(User, { foreignKey: 'userId' });
+}
 
-// রিলেশনশিপ সেট করা
-User.hasMany(Transaction, { foreignKey: 'userId' });
-Transaction.belongsTo(User, { foreignKey: 'userId' });
-
-// যেহেতু DepositRequest ডিলিট করা হয়েছে, তাই এখান থেকে সেটি বাদ দেওয়া হলো
-
+// সবগুলো মডেলকে একটি অবজেক্ট হিসেবে এক্সপোর্ট করা হচ্ছে
 module.exports = { 
     sequelize, 
     User, 
     Transaction, 
     Package, 
     CompanyDoc,
-    CurrencyRate 
+    CurrencyRate,
+    Wallet
 };

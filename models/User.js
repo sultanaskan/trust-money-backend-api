@@ -2,11 +2,46 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const User = sequelize.define('User', {
-    name: { type: DataTypes.STRING, allowNull: false },
-    email: { type: DataTypes.STRING, unique: true, allowNull: false },
-    password: { type: DataTypes.STRING, allowNull: false },
-    balance: { type: DataTypes.DECIMAL(15, 2), defaultValue: 0.00 }
+    countryName: { 
+        type: DataTypes.STRING, 
+        allowNull: false 
+    },
+    firstName: { 
+        type: DataTypes.STRING, 
+        allowNull: false 
+    },
+    lastName: { 
+        type: DataTypes.STRING, 
+        allowNull: false 
+    },
+    phone: { 
+        type: DataTypes.STRING, 
+        allowNull: false,
+        unique: true 
+    },
+    email: { 
+        type: DataTypes.STRING, 
+        unique: true, 
+        allowNull: false,
+        validate: {
+            isEmail: true
+        }
+    },
+    password: { 
+        type: DataTypes.STRING, 
+        allowNull: false 
+    },
+    dateOfBirth: { 
+        type: DataTypes.DATEONLY, // শুধুমাত্র তারিখ সংরক্ষণের জন্য (YYYY-MM-DD)
+        allowNull: false 
+    },
+    balance: { 
+        type: DataTypes.DECIMAL(15, 2), 
+        defaultValue: 0.00 
+    }
+}, {
+    timestamps: true // createdAt এবং updatedAt অটোমেটিক তৈরি হবে
 });
 
-// খুব ভালো করে খেয়াল করুন: এখানে কোনো { } হবে না।
+// আপনার দেওয়া ইন্সট্রাকশন অনুযায়ী: সরাসরি এক্সপোর্ট
 module.exports = User;

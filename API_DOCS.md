@@ -10,9 +10,13 @@ Method: POST
 Body (JSON):
 JSON
 {
-  "name": "MD Rasel",
-  "email": "rasel@example.com",
-  "password": "yourpassword123"
+  "countryName": "Bangladesh",
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "01700000000",
+  "email": "john@example.com",
+  "password": "mysecretpassword",
+  "dateOfBirth": "1995-10-15"
 }
 
 B. লগইন (Login)
@@ -48,9 +52,9 @@ Method: GET
 
 ৪. কোম্পানি ডকুমেন্টস (Company Documents)
 A. ডকুমেন্ট আপলোড (Admin Only)
-কোম্পানির লাইসেন্স বা পলিসি ফাইল আপলোড করার জন্য।
-Endpoint: /admin/upload-doc
+Endpoint: /api/admin/docs
 Method: POST
+Description: কোম্পানির লাইসেন্স, পলিসি বা অন্যান্য লিগ্যাল ফাইল ডাটাবেসে সেভ করার জন্য।
 Body (JSON):
 JSON
 {
@@ -61,27 +65,89 @@ JSON
 }
 
 B. সব ডকুমেন্ট দেখা
-Endpoint: /company-docs
+Endpoint: /api/admin/docs
 Method: GET
+Description: আপলোড করা সকল ডকুমেন্টের লিস্ট দেখার জন্য (নতুনগুলো আগে দেখাবে)।
+
+C. ডকুমেন্ট আপডেট করা
+Endpoint: /api/admin/docs/:id
+Method: PUT
+Description: নির্দিষ্ট কোনো ডকুমেন্টের তথ্য (টাইটেল, ডেসক্রিপশন ইত্যাদি) পরিবর্তন করার জন্য।
+Example Body:
+JSON
+{
+  "title": "Updated Trade License 2026",
+  "description": "Updated version of the company license."
+}
+D. ডকুমেন্ট ডিলিট করা
+Endpoint: /api/admin/docs/:id
+Method: DELETE
+Description: ডাটাবেস থেকে কোনো ডকুমেন্ট স্থায়ীভাবে মুছে ফেলার জন্য।
 
 
 
 ৫. লেনদেনের ইতিহাস (Transaction History)
-A. ইউজার ভিত্তিক হিস্টরি
-Endpoint: /transactions/:userId
+A. ইউজার ভিত্তিক হিস্টরি (User Wise History)
+নির্দিষ্ট একজন ইউজারের করা সকল লেনদেনের তালিকা দেখার জন্য।
+
+Endpoint: /api/transactions/user/:userId
 Method: GET
-Example: /api/transactions/1
+Parameters: userId (ইউজারের আইডি)
+Example: /api/transactions/user/1
+Response:
+JSON
+[
+  {
+    "id": 1,
+    "transactionId": "TXN-1713583824000-452",
+    "userId": 1,
+    "type": "deposit",
+    "amount": 5000.00,
+    "status": "success",
+    "description": "Added money via Bkash",
+    "createdAt": "2026-04-20T09:30:00Z"
+  }
+]
+B. স্ট্যাটাস ভিত্তিক ফিল্টারিং (Filter by Status)
+পেন্ডিং বা সফল ট্রানজ্যাকশনগুলো আলাদাভাবে দেখার জন্য (সাধারণত এডমিন প্যানেলের জন্য)।
+Endpoint: /api/transactions/status/:status
+Method: GET
+Possible Status: pending, success, failed, cancelled
+Example: /api/transactions/status/pending
 
+C. নতুন ট্রানজ্যাকশন তৈরি (Initiate Transaction)
+Endpoint: /api/transactions
+Method: POST
+Body (JSON):
+JSON
+{
+  "userId": 1,
+  "type": "deposit",
+  "amount": 2500.50,
+  "description": "পেমেন্ট গেটওয়ের মাধ্যমে ব্যালেন্স রিচার্জ",
+  "status": "pending"
+}
 
+D. ট্রানজ্যাকশন স্ট্যাটাস আপডেট (Update Status)
+এডমিন যখন কোনো রিকোয়েস্ট অ্যাপ্রুভ বা রিজেক্ট করবে।
+Endpoint: /api/transactions/:id/status
+Method: PUT
+Body (JSON):
+JSON
+{
+  "status": "success"
+}
 
 
 ৬. আপডেট করা এপিআই ডকুমেন্টেশন (Markdown)
 আপনার API_DOCS.md ফাইলে এই অংশটি যোগ করে নিন:
 Markdown
+
+
 ### ৬. কারেন্সি রেট ম্যানেজমেন্ট (Currency Management)
 
 #### **A. সেট কারেন্সি রেট**
-* **Endpoint:** `/api/set-currency-rate`
+* **Endpoint:** `/set-currency-rate`
 * **Method:** `POST`
 * **Body (JSON):**
 ```json
@@ -92,11 +158,11 @@ Markdown
   "rateInUsd": 110.50
 }
 B. সব রেট দেখা
-Endpoint: /api/get-currency-rates
+Endpoint: /get-currency-rates
 Method: GET
 
 C. আপডেট কারেন্সি রেট
-Endpoint: /api/update-currency-rate/:id
+Endpoint: /update-currency-rate/:id
 Method: PUT
 Example Body:
 JSON
@@ -106,12 +172,33 @@ JSON
 
 
 
+7. ওয়ালেট ম্যানেজমেন্ট (Wallet Management)
+A. ওয়ালেট ব্যালেন্স দেখা
+Endpoint: /api/wallet/:userId
+Method: GET
+Description: ইউজারের বর্তমান ব্যালেন্স এবং ওয়ালেটের স্ট্যাটাস দেখার জন্য।
+
+B. ফান্ড অ্যাড করা (Deposit/Add Money)
+Endpoint: /api/wallet/add-money
+Method: POST
+Body (JSON):
+{ "userId": 1, "amount": 500, "description": "Cash In" }
+
+C. ফান্ড উইথড্র বা পেমেন্ট (Withdraw/Pay)
+Endpoint: /api/wallet/withdraw
+Method: POST
+{ "userId": 1, "amount": 200, "description": "Buy Package" }
+
+Description: ওয়ালেট থেকে টাকা খরচ করা বা উইথড্র করার জন্য।
+
+
+
 
 
 
 🛠 টেকনিক্যাল নোট:
 Content-Type: সব রিকোয়েস্টের জন্য Content-Type: application/json ব্যবহার করতে হবে।
-
+স
 Nodemon: আপনার সার্ভার এখন npm run dev কমান্ডে চলে এবং কোড পরিবর্তন করলে অটো-রিলোড হয়।
 
 Database: Sequelize এর মাধ্যমে আপনার ডাটাবেসে নতুন টেবিলগুলো (DepositRequests, CompanyDocs) অটোমেটিক তৈরি হয়ে গেছে।
