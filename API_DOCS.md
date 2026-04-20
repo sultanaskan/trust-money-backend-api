@@ -25,8 +25,8 @@ Method: POST
 Body (JSON):
 JSON
 {
-  "email": "rasel@example.com",
-  "password": "yourpassword123"
+  "email": "john@example.com",
+  "password": "mysecretpassword"
 }
 
 
