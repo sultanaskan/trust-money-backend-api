@@ -2,42 +2,46 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const User = sequelize.define('User', {
-    countryName: { 
-        type: DataTypes.STRING, 
-        allowNull: false 
+    countryName: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    firstName: { 
-        type: DataTypes.STRING, 
-        allowNull: false 
+    role: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    lastName: { 
-        type: DataTypes.STRING, 
-        allowNull: false 
+    status: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    phone: { 
-        type: DataTypes.STRING, 
+    firstName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    lastName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    phone: {
+        type: DataTypes.STRING,
         allowNull: false,
-        unique: true 
+        unique: true
     },
-    email: { 
-        type: DataTypes.STRING, 
-        unique: true, 
+    email: {
+        type: DataTypes.STRING,
+        unique: true,
         allowNull: false,
         validate: {
             isEmail: true
         }
     },
-    password: { 
-        type: DataTypes.STRING, 
-        allowNull: false 
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    dateOfBirth: { 
+    dateOfBirth: {
         type: DataTypes.DATEONLY, // শুধুমাত্র তারিখ সংরক্ষণের জন্য (YYYY-MM-DD)
-        allowNull: false 
-    },
-    balance: { 
-        type: DataTypes.DECIMAL(15, 2), 
-        defaultValue: 0.00 
+        allowNull: false
     }
 }, {
     timestamps: true // createdAt এবং updatedAt অটোমেটিক তৈরি হবে

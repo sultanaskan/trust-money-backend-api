@@ -15,6 +15,8 @@ JSON
   "lastName": "Doe",
   "phone": "01700000000",
   "email": "john@example.com",
+  "role": "user",
+  "status": "personal",
   "password": "mysecretpassword",
   "dateOfBirth": "1995-10-15"
 }
@@ -137,7 +139,7 @@ JSON
 {
   "status": "success"
 }
-
+ 
 
 ৬. আপডেট করা এপিআই ডকুমেন্টেশন (Markdown)
 আপনার API_DOCS.md ফাইলে এই অংশটি যোগ করে নিন:
