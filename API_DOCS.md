@@ -149,7 +149,7 @@ Markdown
 ### ৬. কারেন্সি রেট ম্যানেজমেন্ট (Currency Management)
 
 #### **A. সেট কারেন্সি রেট**
-* **Endpoint:** `/set-currency-rate`
+* **Endpoint:** `/currency/set-currency-rate`
 * **Method:** `POST`
 * **Body (JSON):**
 ```json
@@ -160,11 +160,11 @@ Markdown
   "rateInUsd": 110.50
 }
 B. সব রেট দেখা
-Endpoint: /get-currency-rates
+Endpoint: /currency/get-currency-rates
 Method: GET
 
 C. আপডেট কারেন্সি রেট
-Endpoint: /update-currency-rate/:id
+Endpoint: /currency/update-currency-rate/:id
 Method: PUT
 Example Body:
 JSON

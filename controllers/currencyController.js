@@ -3,16 +3,26 @@ const { CurrencyRate } = require('../models');
 // ১. নতুন কারেন্সি রেট সেট করা
 exports.setCurrencyRate = async (req, res) => {
     try {
-        const { countryName, flagUrl, currencyName, rateInUsd } = req.body;
-        const newRate = await CurrencyRate.create({ 
-            countryName, flagUrl, currencyName, rateInUsd 
+        const { countryName, currencyName, rateInUsd } = req.body;
+
+        // যদি ফাইল আপলোড হয় তবে তার পাথ নিবে, না হলে flagUrl (লিঙ্ক) নিবে
+        let flagUrl = req.body.flagUrl;
+        if (req.file) {
+            flagUrl = `/uploads/flags/${req.file.filename}`;
+        }
+
+        const newRate = await CurrencyRate.create({
+            countryName,
+            flagUrl,
+            currencyName,
+            rateInUsd
         });
+
         res.status(201).json({ message: "Currency rate added successfully", newRate });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
-
 // ২. সব কারেন্সি রেট দেখা
 exports.getAllRates = async (req, res) => {
     try {

@@ -11,6 +11,7 @@ const adminController = require('./controllers/adminController');
 const currencyController = require('./controllers/currencyController');
 const transactionRoutes = require('./routes/transactionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const currencyRoute = require('./routes/currencyRoute')
 const app = express();
 
 // Middleware
@@ -19,7 +20,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/transactions', transactionRoutes); // লাইন ২৮ হতে পারে এটি
 app.use('/api/wallet', require('./routes/walletRoutes'));
-app.use('/api/admin', adminRoutes)
+app.use('/api/admin', adminRoutes);
+app.use('/api/currency', currencyRoute)
+app.use('/uploads', express.static('uploads'));
 
 // --- ১. অথেনটিকেশন রাউটস ---
 app.post('/api/register', authController.register);
@@ -31,11 +34,6 @@ app.get('/api/get-packages', packageController.getPackages);
 
 // --- ৩. ট্রানজ্যাকশন রাউটস ---
 
-// --- ৪. অ্যাডমিন ও কারেন্সি রাউটস ---app.get('/api/company-docs', adminController.getCompanyDocs);
-app.post('/api/set-currency-rate', currencyController.setCurrencyRate);
-app.get('/api/get-currency-rates', currencyController.getAllRates);
-app.get('/api/get-currency-rate/:id', currencyController.getSingleRate);
-app.put('/api/update-currency-rate/:id', currencyController.updateCurrencyRate);
 
 const PORT = process.env.PORT || 5000;
 
