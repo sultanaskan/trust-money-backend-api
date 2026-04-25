@@ -65,7 +65,8 @@ const login = async (req, res) => {
         const { email, password } = req.body;
 
         // ইউজার খুঁজে বের করা
-        const user = await User.findOne({ where: { email } });
+        // সংশোধন করা লাইন:
+        const user = await User.scope('withPassword').findOne({ where: { email } });
 
         if (user && await bcrypt.compare(password, user.password)) {
 

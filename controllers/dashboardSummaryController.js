@@ -20,11 +20,7 @@ exports.getDashboardSummary = async (req, res) => {
             raw: true
         });
 
-
-
-
         // এর রেজাল্ট আসবে অনেকটা এরকম: [{status: 'active', count: 10}, {status: 'pending', count: 5}]
-
         const activePackages = await Package.count();
         // Sequelize-এ যোগফল বের করার নিয়ম
         const totalDeposits = await Transaction.sum('amount', { where: { type: 'deposit', status: 'completed' } });
