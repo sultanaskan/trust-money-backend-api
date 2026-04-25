@@ -5,6 +5,7 @@ const Package = require('./Package');
 const CompanyDoc = require('./CompanyDoc');
 const CurrencyRate = require('./CurrencyRate');
 const Wallet = require('./Wallet')
+const PaymentMethod = require('./PaymentMethod')
 // রিলেশনশিপ সেট করা (এটি নিশ্চিত করে যে Sequelize জানে টেবিলগুলোর সম্পর্ক কী)
 if (User && Transaction) {
     User.hasMany(Transaction, { foreignKey: 'userId' });
@@ -12,12 +13,13 @@ if (User && Transaction) {
 }
 
 // সবগুলো মডেলকে একটি অবজেক্ট হিসেবে এক্সপোর্ট করা হচ্ছে
-module.exports = { 
-    sequelize, 
-    User, 
-    Transaction, 
-    Package, 
+module.exports = {
+    sequelize,
+    User,
+    Transaction,
+    Package,
     CompanyDoc,
     CurrencyRate,
-    Wallet
+    Wallet,
+    PaymentMethod
 };

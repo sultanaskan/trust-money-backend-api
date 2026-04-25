@@ -8,7 +8,7 @@ exports.setCurrencyRate = async (req, res) => {
         let flagUrl = req.body.flagUrl;
 
         if (req.file) {
-            flagUrl = `/uploads/flags/${req.file.filename}`;
+            flagUrl = `public/uploads/flags/${req.file.filename}`;
         }
 
         const newRate = await CurrencyRate.create({

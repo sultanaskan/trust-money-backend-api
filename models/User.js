@@ -2,50 +2,79 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
 const User = sequelize.define('User', {
-    countryName: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    role: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    status: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
     firstName: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: { notEmpty: true }
     },
     lastName: {
         type: DataTypes.STRING,
-        allowNull: false
-    },
-    phone: {
-        type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        validate: { notEmpty: true }
     },
     email: {
         type: DataTypes.STRING,
         unique: true,
         allowNull: false,
         validate: {
-            isEmail: true
+            isEmail: true,
+            notEmpty: true
         }
+    },
+    phone: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+        validate: { notEmpty: true }
     },
     password: {
         type: DataTypes.STRING,
         allowNull: false
+        // কন্ট্রোলারে এটি অবশ্যই bcrypt দিয়ে হ্যাশ করে সেভ করবেন
+    },
+    countryName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "Bangladesh"
     },
     dateOfBirth: {
-        type: DataTypes.DATEONLY, // শুধুমাত্র তারিখ সংরক্ষণের জন্য (YYYY-MM-DD)
+        type: DataTypes.DATEONLY,
         allowNull: false
+    },
+    role: {
+        type: DataTypes.ENUM("user", "admin", "moderator"),
+        allowNull: false,
+        defaultValue: "user" // এখানে '=' এর বদলে ':' হবে
+    },
+    status: {
+        type: DataTypes.ENUM("active", "inactive", "pending", "suspended"),
+        allowNull: false,
+        defaultValue: "pending"
+    },
+    type: {
+        type: DataTypes.ENUM("personal", 'agent'),
+        allowNull: false,
+        defaultValue: "personal"
+    },
+    balance: {
+        type: DataTypes.DECIMAL(15, 2),
+        allowNull: false,
+        defaultValue: 0.00,
+        validate: {
+            min: 0
+        }
     }
 }, {
-    timestamps: true // createdAt এবং updatedAt অটোমেটিক তৈরি হবে
+    timestamps: true,
+    // সিকিউরিটির জন্য পাসওয়ার্ড হাইড করে রাখা (JSON এ দেখাবে না)
+    defaultScope: {
+        attributes: { exclude: ['password'] }
+    },
+    scopes: {
+        withPassword: {
+            attributes: {},
+        }
+    }
 });
 
-// আপনার দেওয়া ইন্সট্রাকশন অনুযায়ী: সরাসরি এক্সপোর্ট
 module.exports = User;

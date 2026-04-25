@@ -10,9 +10,12 @@ const adminController = require('./controllers/docControllers');
 const currencyController = require('./controllers/currencyController');
 const transactionRoutes = require('./routes/transactionRoutes');
 const docRoutes = require('./routes/docRoutes');
-const currencyRoute = require('./routes/currencyRoute')
-const userRoutes = require('./routes/userRoutes')
-const packageRoutes = require('./routes/packageRoutes')
+const currencyRoute = require('./routes/currencyRoute');
+const userRoutes = require('./routes/userRoutes');
+const packageRoutes = require('./routes/packageRoutes');
+const paymentRoutes = require('./routes/paymenRoutes');
+const summary = require("./controllers/dashboardSummaryController");
+
 
 const app = express();
 
@@ -20,16 +23,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/api/transactions', transactionRoutes); // লাইন ২৮ হতে পারে এটি
 app.use('/api/wallet', require('./routes/walletRoutes'));
 app.use('/api/doc', docRoutes);
 app.use('/api/currency', currencyRoute)
 app.use('/api/user', userRoutes)
 app.use('/api/package', packageRoutes)
+app.use('/api/payment', paymentRoutes)
 
 app.post('/api/register', authController.register);
 app.post('/api/login', authController.login);
+app.get('/api/summary/:id', summary.getDashboardSummary);
 
 // --- ৩. ট্রানজ্যাকশন রাউটস ---
 
