@@ -36,7 +36,7 @@ JSON
 
 ৩. ব্যাংকিং প্যাকেজ (Packages)
 A. প্যাকেজ সেট করা (Admin Only)
-Endpoint: /set-packages
+Endpoint: /package
 Method: POST
 Body (JSON):
 JSON
@@ -48,13 +48,34 @@ JSON
 }
 
 B. প্যাকেজ লিস্ট দেখা
-Endpoint: /get-packages
+Endpoint: /package
 Method: GET
+
+C. Get Package by id
+Endpoint: /package/:id
+Method: Get
+
+D. Put package by id
+EndPoint: /package/:id
+Method: PUT
+PayLoad: {
+  "packageName": "SME Business Loan",
+  "price": 500.00,
+  "validityDays": 30,
+  "features": "Low interest rate, Fast processing"
+}
+
+E. Delete Package
+Endpoint: /package/:id
+Method: DELETE
+  
+
+
 
 
 ৪. কোম্পানি ডকুমেন্টস (Company Documents)
 A. ডকুমেন্ট আপলোড (Admin Only)
-Endpoint: /api/admin/docs
+Endpoint: /api/doc
 Method: POST
 Description: কোম্পানির লাইসেন্স, পলিসি বা অন্যান্য লিগ্যাল ফাইল ডাটাবেসে সেভ করার জন্য।
 Body (JSON):
@@ -66,23 +87,27 @@ JSON
   "description": "Company legal trade license for the current year."
 }
 
+
 B. সব ডকুমেন্ট দেখা
-Endpoint: /api/admin/docs
+Endpoint: /api/doc
 Method: GET
 Description: আপলোড করা সকল ডকুমেন্টের লিস্ট দেখার জন্য (নতুনগুলো আগে দেখাবে)।
 
 C. ডকুমেন্ট আপডেট করা
-Endpoint: /api/admin/docs/:id
+Endpoint: /api/doc/:id
 Method: PUT
 Description: নির্দিষ্ট কোনো ডকুমেন্টের তথ্য (টাইটেল, ডেসক্রিপশন ইত্যাদি) পরিবর্তন করার জন্য।
 Example Body:
 JSON
 {
-  "title": "Updated Trade License 2026",
-  "description": "Updated version of the company license."
+  "title": "Trade License 2026",
+  "fileUrl": "uploads/docs/license.pdf",
+  "docType": "pdf",
+  "description": "Company legal trade license for the current year."
 }
+
 D. ডকুমেন্ট ডিলিট করা
-Endpoint: /api/admin/docs/:id
+Endpoint: /api/doc/:id
 Method: DELETE
 Description: ডাটাবেস থেকে কোনো ডকুমেন্ট স্থায়ীভাবে মুছে ফেলার জন্য।
 
@@ -132,7 +157,7 @@ JSON
 
 D. ট্রানজ্যাকশন স্ট্যাটাস আপডেট (Update Status)
 এডমিন যখন কোনো রিকোয়েস্ট অ্যাপ্রুভ বা রিজেক্ট করবে।
-Endpoint: /api/transactions/:id/status
+Endpoint: /api/transµactions/:id/status
 Method: PUT
 Body (JSON):
 JSON
@@ -171,6 +196,14 @@ JSON
 {
   "rateInUsd": 112.00
 }
+D. Get single currency rate
+Endpoint: /currency/get-currency-rate/:id
+Method: GET
+
+E. Delete Currency Rate: 
+Encpoint: /currency/delete-currency-rate/:id
+Method: DELETE
+
 
 
 
@@ -192,6 +225,58 @@ Method: POST
 { "userId": 1, "amount": 200, "description": "Buy Package" }
 
 Description: ওয়ালেট থেকে টাকা খরচ করা বা উইথড্র করার জন্য।
+
+
+
+8.User management
+A. Get all users
+Endpoint: /user
+Method: GET
+RESPONSE: 
+{
+    "success": true,
+    "count": 1,
+    "data": [
+        {
+            "id": 1,
+            "countryName": "Bangladesh",
+            "role": "user",
+            "status": "active",
+            "firstName": "a",
+            "lastName": "ad",
+            "phone": "adf",
+            "email": "a@gmail.com",
+            "dateOfBirth": "2026-04-24",
+            "createdAt": "2026-04-23T13:32:14.000Z",
+            "updatedAt": "2026-04-23T13:32:14.000Z"
+        }
+    ]
+}
+B. Get get user with user id
+EndPoint: /user/:id
+Method: GET
+
+C. Get Update user with user id 
+EndPoint: /user/:id
+Method: PUT
+PlayLoad: {
+  "firstName": "Rasel",
+  "lastName": "Mollah",
+  "phone": "01700000000",
+  "email": "rasel.updated@example.com",
+  "role": "admin",
+  "status": "active", //personal/agent
+  "password": "newsecurepassword123"
+}
+Response: {
+  "success": true,
+  "message": "User updated successfully",
+  "data": {
+    "id": "10",
+    "email": "rasel.updated@example.com",
+    "firstName": "Rasel"
+  }
+}
 
 
 

@@ -1,36 +1,35 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { sequelize, Transaction } = require('./models'); // একদম ওপরেই মডেলগুলো নিয়ে নিলাম
-
-// কন্ট্রোলার ইমপোর্ট
 const authController = require('./controllers/authController');
 const packageController = require('./controllers/packageController');
 const transactionController = require('./controllers/transactionController');
-const adminController = require('./controllers/adminController');
+const adminController = require('./controllers/docControllers');
 const currencyController = require('./controllers/currencyController');
 const transactionRoutes = require('./routes/transactionRoutes');
-const adminRoutes = require('./routes/adminRoutes');
+const docRoutes = require('./routes/docRoutes');
 const currencyRoute = require('./routes/currencyRoute')
+const userRoutes = require('./routes/userRoutes')
+const packageRoutes = require('./routes/packageRoutes')
+
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/transactions', transactionRoutes); // লাইন ২৮ হতে পারে এটি
 app.use('/api/wallet', require('./routes/walletRoutes'));
-app.use('/api/admin', adminRoutes);
+app.use('/api/doc', docRoutes);
 app.use('/api/currency', currencyRoute)
-app.use('/uploads', express.static('uploads'));
+app.use('/api/user', userRoutes)
+app.use('/api/package', packageRoutes)
 
-// --- ১. অথেনটিকেশন রাউটস ---
 app.post('/api/register', authController.register);
 app.post('/api/login', authController.login);
-
-// --- ২. প্যাকেজ রাউটস ---
-app.post('/api/set-packages', packageController.setPackage);
-app.get('/api/get-packages', packageController.getPackages);
 
 // --- ৩. ট্রানজ্যাকশন রাউটস ---
 
@@ -38,7 +37,7 @@ app.get('/api/get-packages', packageController.getPackages);
 const PORT = process.env.PORT || 5000;
 
 // ডাটাবেস কানেকশন এবং সার্ভার লাইভ করার অংশ
-sequelize.sync({ alter: true })
+sequelize.sync()
     .then(() => {
         console.log('✅ Remote Database synced successfully (using your .env config)');
         app.listen(PORT, () => {

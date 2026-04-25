@@ -5,8 +5,8 @@ exports.setCurrencyRate = async (req, res) => {
     try {
         const { countryName, currencyName, rateInUsd } = req.body;
 
-        // যদি ফাইল আপলোড হয় তবে তার পাথ নিবে, না হলে flagUrl (লিঙ্ক) নিবে
         let flagUrl = req.body.flagUrl;
+
         if (req.file) {
             flagUrl = `/uploads/flags/${req.file.filename}`;
         }
@@ -15,10 +15,14 @@ exports.setCurrencyRate = async (req, res) => {
             countryName,
             flagUrl,
             currencyName,
-            rateInUsd
+            rateInUsd: Number(rateInUsd)
         });
 
-        res.status(201).json({ message: "Currency rate added successfully", newRate });
+        res.status(201).json({
+            message: "Currency rate added successfully",
+            newRate
+        });
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -53,5 +57,30 @@ exports.updateCurrencyRate = async (req, res) => {
         res.json({ message: "Updated successfully", rate });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+
+exports.deleteCurrencyRate = async (req, res) => {
+    try {
+        // ১. আইডি দিয়ে রেকর্ডটি খুঁজে বের করা
+        const rate = await CurrencyRate.findByPk(req.params.id);
+
+        // ২. যদি রেকর্ড না পাওয়া যায়
+        if (!rate) {
+            return res.status(404).json({ error: "Rate not found" });
+        }
+
+        // ৩. রেকর্ডটি ডাটাবেস থেকে মুছে ফেলা (Sequelize method is destroy)
+        await rate.destroy();
+
+        // ৪. সফল রেসপন্স পাঠানো
+        res.json({
+            message: "Deleted Successfully",
+            deletedRate: rate // কোন ডাটা ডিলিট হলো তা দেখানোর জন্য (অপশনাল)
+        });
+
+    } catch (error) {
+        console.error("Delete Error:", error);
+        res.status(500).json({ error: error.message });
     }
 };

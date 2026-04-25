@@ -4,20 +4,23 @@ const multer = require('multer');
 const path = require('path');
 const currencyController = require('../controllers/currencyController');
 
-// ফাইল সেভ করার লোকেশন সেটআপ
+
 const storage = multer.diskStorage({
-    destination: './uploads/flags/',
+    destination: (req, file, cb) => {
+        cb(null, "uploads/flags");
+    },
     filename: (req, file, cb) => {
-        cb(null, 'flag-' + Date.now() + path.extname(file.originalname));
+        cb(null, Date.now() + "-" + file.originalname);
     }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 // POST রাউটে upload.single('flagIcon') যোগ করুন
 router.post('/set-currency-rate', upload.single('flagIcon'), currencyController.setCurrencyRate);
 router.get('/get-currency-rates', currencyController.getAllRates);
 router.get('/get-currency-rate/:id', currencyController.getSingleRate);
 router.put('/update-currency-rate/:id', currencyController.updateCurrencyRate);
+router.delete('/delete-currency-rate/:id', currencyController.deleteCurrencyRate)
 
 module.exports = router;
