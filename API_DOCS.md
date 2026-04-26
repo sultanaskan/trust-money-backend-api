@@ -2,6 +2,7 @@
 
 🏦 Trust Money App - API Documentation (Updated V2)
 Base URL: http://localhost:5000/api
+Remote Base URl: https://trustmoneyapi.wellcometoserbia.com/api
 
 ১. ইউজার ম্যানেজমেন্ট (Authentication)
 A. রেজিস্ট্রেশন (Registration)
@@ -9,7 +10,7 @@ Endpoint: /register
 Method: POST
 Body (JSON):
 JSON
-{
+{ 
   "countryName": "Bangladesh",
   "firstName": "John",
   "lastName": "Doe",
@@ -184,37 +185,42 @@ EndPoint: /transactionns/user/:userID
 ৬. আপডেট করা এপিআই ডকুমেন্টেশন (Markdown)
 আপনার API_DOCS.md ফাইলে এই অংশটি যোগ করে নিন:
 Markdown
-### ৬. কারেন্সি রেট ম্যানেজমেন্ট (Currency Management)
+### ৬. কারেন্সি রেট ম্যানেজমেন্ট (Currency                          ['IK44Management)
 
 #### **A. সেট কারেন্সি রেট**
-* **Endpoint:** `/currency/set-currency-rate`
+* **Endpoint:** `/currency`
 * **Method:** `POST`
 * **Body (JSON):**
 ```json
 {
+  "flagIcon": file,
   "countryName": "Bangladesh",
   "flagUrl": "[https://flagsapi.com/BD/flat/64.png](https://flagsapi.com/BD/flat/64.png)",
   "currencyName": "BDT",
   "rateInUsd": 110.50
 }
 B. সব রেট দেখা
-Endpoint: /currency/get-currency-rates
+Endpoint: /currency
 Method: GET
 
 C. আপডেট কারেন্সি রেট
-Endpoint: /currency/update-currency-rate/:id
+Endpoint: /currency/:id
 Method: PUT
 Example Body:
 JSON
 {
-  "rateInUsd": 112.00
+  "flagIcon": file,
+  "countryName": "Bangladesh",
+  "flagUrl": "[https://flagsapi.com/BD/flat/64.png](https://flagsapi.com/BD/flat/64.png)",
+  "currencyName": "BDT",
+  "rateInUsd": 110.50
 }
 D. Get single currency rate
-Endpoint: /currency/get-currency-rate/:id
+Endpoint: /currency/:id
 Method: GET
 
 E. Delete Currency Rate: 
-Encpoint: /currency/delete-currency-rate/:id
+Encpoint: /currency/:id
 Method: DELETE
 
 

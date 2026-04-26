@@ -35,7 +35,7 @@ const User = sequelize.define('User', {
     countryName: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: "Bangladesh"
+        defaultValue: "Bangladesh",
     },
     dateOfBirth: {
         type: DataTypes.DATEONLY,

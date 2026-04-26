@@ -1,14 +1,18 @@
 const { CurrencyRate } = require('../models');
+const fs = require('fs');
+const path = require('path');
+
 
 // ১. নতুন কারেন্সি রেট সেট করা
 exports.setCurrencyRate = async (req, res) => {
     try {
         const { countryName, currencyName, rateInUsd } = req.body;
-
         let flagUrl = req.body.flagUrl;
-
         if (req.file) {
-            flagUrl = `public/uploads/flags/${req.file.filename}`;
+            // ডাইনামিক হোস্ট ইউআরএল তৈরি
+            const baseUrl = `${req.protocol}://${req.get('host')}`;
+            // ফুল ইউআরএল সেট করা
+            flagUrl = `${baseUrl}/public/uploads/flags/${req.file.filename}`;
         }
 
         const newRate = await CurrencyRate.create({
@@ -49,16 +53,56 @@ exports.getSingleRate = async (req, res) => {
 };
 
 // ৪. আপডেট করা
+
 exports.updateCurrencyRate = async (req, res) => {
     try {
-        const rate = await CurrencyRate.findByPk(req.params.id);
-        if (!rate) return res.status(404).json({ error: "Rate not found" });
-        await rate.update(req.body);
-        res.json({ message: "Updated successfully", rate });
+        const { id } = req.params;
+        const { countryName, currencyName, rateInUsd } = req.body;
+        const rate = await CurrencyRate.findByPk(id);
+        if (!rate) {
+            return res.status(404).json({ error: "Currency rate not found" });
+        }
+        // নতুন ডাটার জন্য অবজেক্ট তৈরি
+        let updatedData = {
+            countryName,
+            currencyName,
+            rateInUsd: rateInUsd ? Number(rateInUsd) : rate.rateInUsd
+        };
+
+        // যদি নতুন ফ্ল্যাগ ফাইল আপলোড করা হয়
+        if (req.file) {
+            // ১. পুরানো ফাইলটি সার্ভার থেকে ডিলিট করা
+            if (rate.flagUrl) {
+                try {
+                    console.log(new URL(rate.flagUrl))
+                    const urlPath = new URL(rate.flagUrl).pathname;
+                    const oldFilePath = path.join(process.cwd(), urlPath);
+                    if (fs.existsSync(oldFilePath)) {
+                        fs.unlinkSync(oldFilePath);
+                    }
+                } catch (fileErr) {
+                    console.log("Old file not found or invalid URL, skipping delete.");
+                }
+            }
+            const baseUrl = `${req.protocol}://${req.get('host')}`;
+            updatedData.flagUrl = `${baseUrl}/public/uploads/flags/${req.file.filename}`;
+        }
+
+        // ডাটাবেস আপডেট
+        await rate.update(updatedData);
+
+        res.json({
+            message: "Currency rate updated successfully",
+            rate
+        });
+
     } catch (err) {
+        console.error("Update Error:", err);
         res.status(500).json({ error: err.message });
     }
 };
+
+
 
 exports.deleteCurrencyRate = async (req, res) => {
     try {
