@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { sequelize, Transaction } = require('./models'); // একদম ওপরেই মডেলগুলো নিয়ে নিলাম
-const authController = require('./controllers/authController');
 const packageController = require('./controllers/packageController');
 const transactionController = require('./controllers/transactionController');
 const adminController = require('./controllers/docControllers');
@@ -32,8 +31,6 @@ app.use('/api/user', userRoutes)
 app.use('/api/package', packageRoutes)
 app.use('/api/payment', paymentRoutes)
 
-app.post('/api/register', authController.register);
-app.post('/api/login', authController.login);
 app.get('/api/summary/:id', summary.getDashboardSummary);
 
 // --- ৩. ট্রানজ্যাকশন রাউটস ---

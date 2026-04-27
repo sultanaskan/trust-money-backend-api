@@ -4,35 +4,6 @@
 Base URL: http://localhost:5000/api
 Remote Base URl: https://trustmoneyapi.wellcometoserbia.com/api
 
-১. ইউজার ম্যানেজমেন্ট (Authentication)
-A. রেজিস্ট্রেশন (Registration)
-Endpoint: /register
-Method: POST
-Body (JSON):
-JSON
-{ 
-  "countryName": "Bangladesh",
-  "firstName": "John",
-  "lastName": "Doe",
-  "phone": "01700000000",
-  "email": "john@example.com",
-  "role": "user",
-  "status": "personal",
-  "password": "mysecretpassword",
-  "dateOfBirth": "1995-10-15"
-}
-
-B. লগইন (Login)
-Endpoint: /login
-Method: POST
-Body (JSON):
-JSON
-{
-  "email": "john@example.com",
-  "password": "mysecretpassword"
-}
-
-
 
 
 ৩. ব্যাংকিং প্যাকেজ (Packages)
@@ -242,7 +213,6 @@ C. ফান্ড উইথড্র বা পেমেন্ট (Withdraw/Pay
 Endpoint: /api/wallet/withdraw
 Method: POST
 { "userId": 1, "amount": 200, "description": "Buy Package" }
-
 Description: ওয়ালেট থেকে টাকা খরচ করা বা উইথড্র করার জন্য।
 
 
@@ -258,9 +228,10 @@ RESPONSE:
     "data": [
         {
             "id": 1,
-            "countryName": "Bangladesh",
-            "role": "user",
-            "status": "active",
+            "currencyId": "Bangladesh",
+            "role": "user"/"admin",
+            "status": "active"/"inactive"/"pending"/"suspended",
+            "type": "personal"/"agent",
             "firstName": "a",
             "lastName": "ad",
             "phone": "adf",
@@ -296,6 +267,34 @@ Response: {
     "firstName": "Rasel"
   }
 }
+D. রেজিস্ট্রেশন (Registration)
+Endpoint: /user/register
+Method: POST
+Body (JSON):
+JSON
+{ 
+  "currencyId": 1,
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "01700000000",
+  "email": "john@example.com",
+  "role": "user",
+  "status": "personal",
+  "password": "mysecretpassword",
+  "dateOfBirth": "1995-10-15"
+}
+
+E. লগইন (Login)
+Endpoint: /user/login
+Method: POST
+Body (JSON):
+JSON
+{
+  "email": "john@example.com",
+  "password": "mysecretpassword"
+}
+
+
 
 
 

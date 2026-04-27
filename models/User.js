@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const CurrencyRate = require('./CurrencyRate');
 
 const User = sequelize.define('User', {
     firstName: {
@@ -32,10 +33,11 @@ const User = sequelize.define('User', {
         allowNull: false
         // কন্ট্রোলারে এটি অবশ্যই bcrypt দিয়ে হ্যাশ করে সেভ করবেন
     },
-    countryName: {
-        type: DataTypes.STRING,
+    currencyId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: "Bangladesh",
+        // এখানে ডিফল্ট ভ্যালু হিসেবে সরাসরি আইডি নাম্বার দিতে হবে (ধরি বাংলাদেশ ১ নাম্বার আইডি)
+        defaultValue: 1,
     },
     dateOfBirth: {
         type: DataTypes.DATEONLY,
@@ -56,14 +58,6 @@ const User = sequelize.define('User', {
         allowNull: false,
         defaultValue: "personal"
     },
-    balance: {
-        type: DataTypes.DECIMAL(15, 2),
-        allowNull: false,
-        defaultValue: 0.00,
-        validate: {
-            min: 0
-        }
-    }
 }, {
     timestamps: true,
     // সিকিউরিটির জন্য পাসওয়ার্ড হাইড করে রাখা (JSON এ দেখাবে না)
@@ -76,5 +70,6 @@ const User = sequelize.define('User', {
         }
     }
 });
+
 
 module.exports = User;
