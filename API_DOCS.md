@@ -185,7 +185,7 @@ EndPoint: /transactionns/user/:userID
 ৬. আপডেট করা এপিআই ডকুমেন্টেশন (Markdown)
 আপনার API_DOCS.md ফাইলে এই অংশটি যোগ করে নিন:
 Markdown
-### ৬. কারেন্সি রেট ম্যানেজমেন্ট (Currency                          ['IK44Management)
+### ৬. কারেন্সি রেট ম্যানেজমেন্ট (Currency Management)
 
 #### **A. সেট কারেন্সি রেট**
 * **Endpoint:** `/currency`

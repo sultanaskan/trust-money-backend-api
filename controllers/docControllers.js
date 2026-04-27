@@ -13,7 +13,13 @@ exports.postDoc = async (req, res) => {
         }
 
         // ভেরিয়েবল নাম ঠিক করা হয়েছে (docUrl -> fileUrl)
-        const fileUrl = `public/uploads/docs/${req.file.filename}`;
+        let fileUrl;
+        if (req.get('host') === "localhost") {
+            fileUrl = `${req.protocol}://${req.get('host')}public/uploads/docs/${req.file.filename}`;
+        } {
+            fileUrl = `${req.protocol}s://${req.get('host')}public/uploads/docs/${req.file.filename}`;
+        }
+
         if (!title) {
             return res.status(400).json({ error: "Title is required" });
         }
@@ -71,7 +77,7 @@ exports.putDoc = async (req, res) => {
             }
 
             // ২. নতুন ফাইলের পাথ সেট করা
-            updatedData.fileUrl = `public/uploads/docs/${req.file.filename}`;
+            updatedData.fileUrl = `${req.protocol}s://${req.get('host')}/public/uploads/docs/${req.file.filename}`;
         }
 
         // ডাটাবেস আপডেট

@@ -10,7 +10,7 @@ exports.setCurrencyRate = async (req, res) => {
         let flagUrl = req.body.flagUrl;
         if (req.file) {
             // ডাইনামিক হোস্ট ইউআরএল তৈরি
-            const baseUrl = `${req.protocol}://${req.get('host')}`;
+            const baseUrl = `${req.protocol}s://${req.get('host')}`;
             // ফুল ইউআরএল সেট করা
             flagUrl = `${baseUrl}/public/uploads/flags/${req.file.filename}`;
         }
@@ -84,7 +84,7 @@ exports.updateCurrencyRate = async (req, res) => {
                     console.log("Old file not found or invalid URL, skipping delete.");
                 }
             }
-            const baseUrl = `${req.protocol}://${req.get('host')}`;
+            const baseUrl = `${req.protocol}s://${req.get('host')}`;
             updatedData.flagUrl = `${baseUrl}/public/uploads/flags/${req.file.filename}`;
         }
 
