@@ -7,17 +7,21 @@ const PaymentMethod = sequelize.define('PaymentMethod', {
         allowNull: false,
         comment: 'Type of payment: mobile (Bkash/Nagad) or traditional banking'
     },
-    methodName: {
+    providerName: {
         type: DataTypes.STRING,
         allowNull: false,
         placeholder: 'e.g., Bkash, Rocket, DBBL, City Bank'
+    },
+    bankLogoUrl: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     accountNumber: {
         type: DataTypes.STRING,
         allowNull: false
     },
     accountType: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM("personal", "agent", "saving"),
         allowNull: true,
         placeholder: 'e.g., Personal, Agent, Savings, Current'
     },

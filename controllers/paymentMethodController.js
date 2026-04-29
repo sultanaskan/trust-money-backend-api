@@ -1,13 +1,22 @@
 const { PaymentMethod } = require('../models'); // আপনার পাথ অনুযায়ী ইমপোর্ট করুন
+const fs = require("fs")
+const path = require("path")
 
 // ১. নতুন পেমেন্ট মেথড তৈরি করা (Create)
 exports.createPaymentMethod = async (req, res) => {
     try {
-        const { methodType, methodName, accountNumber, accountType, paymentGuide, status } = req.body;
-
+        const { methodType, providerName, accountNumber, accountType, paymentGuide, status } = req.body;
+        let bankLogoUrl = req.body.File;
+        if (req.file) {
+            // ডাইনামিক হোস্ট ইউআরএল তৈরি
+            const baseUrl = `${req.protocol}s://${req.get('host')}`;
+            // ফুল ইউআরএল সেট করা
+            bankLogoUrl = `${baseUrl}/public/uploads/banklogos/${req.file.filename}`;
+        }
         const newMethod = await PaymentMethod.create({
             methodType,
-            methodName,
+            providerName,
+            bankLogoUrl,
             accountNumber,
             accountType,
             paymentGuide,
@@ -60,48 +69,59 @@ exports.getPaymentMethodById = async (req, res) => {
 exports.updatePaymentMethod = async (req, res) => {
     try {
         const { id } = req.params;
+        const { methodType, providerName, accountNumber, accountType, paymentGuide, status } = req.body;
 
-        // ১. নির্দিষ্ট ফিল্ডগুলো বডি থেকে আলাদা করা (Destructuring)
-        const {
-            methodType,
-            methodName,
-            accountNumber,
-            accountType,
-            paymentGuide,
-            status
-        } = req.body;
-
-        // ২. ডাটাবেসে পেমেন্ট মেথডটি আছে কি না চেক করা
-        const method = await PaymentMethod.findByPk(id);
-
-        if (!method) {
-            return res.status(404).json({
-                success: false,
-                message: "Payment method not found"
-            });
+        // ১. ডাটাবেস থেকে বর্তমান পেমেন্ট মেথডটি খুঁজে বের করা
+        const paymentMethod = await PaymentMethod.findByPk(id);
+        if (!paymentMethod) {
+            return res.status(404).json({ success: false, message: "Payment method not found" });
         }
 
-        // ৩. নির্দিষ্ট ফিল্ডগুলো দিয়ে আপডেট করা
-        await method.update({
-            methodType,
-            methodName,
-            accountNumber,
-            accountType,
-            paymentGuide,
-            status
-        });
+        // ২. ডাটা আপডেট করার জন্য অবজেক্ট তৈরি
+        let updatedData = {
+            methodType: methodType || paymentMethod.methodType,
+            providerName: providerName || paymentMethod.providerName,
+            accountNumber: accountNumber || paymentMethod.accountNumber,
+            accountType: accountType || paymentMethod.accountType,
+            paymentGuide: paymentGuide || paymentMethod.paymentGuide,
+            status: status || paymentMethod.status
+        };
+
+        // ৩. যদি নতুন ফাইল (Logo) আপলোড করা হয়
+        if (req.file) {
+            // পুরানো লোগোটি সার্ভার থেকে ডিলিট করা
+            if (paymentMethod.bankLogoUrl) {
+                try {
+                    // ইউআরএল থেকে পাথের অংশটুকু বের করা (যেমন: /public/uploads/...)
+                    const urlPath = new URL(paymentMethod.bankLogoUrl).pathname;
+                    const oldFilePath = path.join(process.cwd(), urlPath);
+
+                    if (fs.existsSync(oldFilePath)) {
+                        fs.unlinkSync(oldFilePath);
+                    }
+                } catch (fileErr) {
+                    console.log("Old file not found or invalid URL, skipping delete.");
+                }
+            }
+
+            // নতুন ডাইনামিক হোস্ট ইউআরএল তৈরি
+            const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+            const host = req.get('host');
+            updatedData.bankLogoUrl = `${protocol}s://${host}/public/uploads/banklogos/${req.file.filename}`;
+        }
+
+        // ৪. ডাটাবেসে আপডেট সম্পন্ন করা
+        await paymentMethod.update(updatedData);
 
         res.status(200).json({
             success: true,
             message: "Payment method updated successfully",
-            data: method
+            data: paymentMethod
         });
+
     } catch (error) {
         console.error("Update Payment Method Error:", error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 // ৫. পেমেন্ট মেথড ডিলিট করা (Delete)

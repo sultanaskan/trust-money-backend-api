@@ -301,13 +301,14 @@ JSON
 
 9. Payment method apis
 A. Create Payment Methodনতুন একটি পেমেন্ট গেটওয়ে বা অ্যাকাউন্ট যোগ করার জন্য।
-URL: / 
+URL: /payment 
 Method: POST 
 Request Body (JSON):JSON {
+  "File" ====> bankLogoUrl
     "methodType": "mobile", 
-    "methodName": "Bkash",
+    "providerName": "Bkash",
     "accountNumber": "01700000000",
-    "accountType": "Personal",
+    "accountType": "personal/agent/saving",
     "paymentGuide": "Send money to this number and provide transaction ID.",
     "status": "active"
 }
@@ -318,33 +319,80 @@ Success Response (201 Created):JSON{
 }
 
 B. Get All Payment Methodsসিস্টেমে থাকা সকল পেমেন্ট মেথডের লিস্ট দেখার জন্য।
-URL: /
+URL: /payment
 Method: GET
-Success Response (200 OK):JSON{
+Success Response (200 OK):JSON
+{
     "success": true,
     "count": 2,
     "data": [
         {
+            "id": 2,
+            "methodType": "mobile",
+            "providerName": "askdjf",
+            "bankLogoUrl": "https://localhost:5000/public/uploads/banklogos/1777459214096-trust bank visa card.png",
+            "accountNumber": "aasdf",
+            "accountType": "personal",
+            "paymentGuide": "asdfasdfgadfg",
+            "status": "active",
+            "createdAt": "2026-04-29T10:26:21.000Z",
+            "updatedAt": "2026-04-29T10:40:14.000Z"
+        },
+        {
             "id": 1,
-            "methodName": "Bkash",
-            "accountNumber": "01700000000",
-            "status": "active"
+            "methodType": "mobile",
+            "providerName": "askdjf",
+            "bankLogoUrl": "https://localhost:5000/public/uploads/banklogos/1777458212038-image.jpg",
+            "accountNumber": "aasdf",
+            "accountType": "personal",
+            "paymentGuide": "asdfasdfgadfg",
+            "status": "active",
+            "createdAt": "2026-04-29T10:23:32.000Z",
+            "updatedAt": "2026-04-29T10:23:32.000Z"
         }
     ]
 }
-C. Get Single Payment Methodনির্দিষ্ট একটি মেথডের ডিটেইলস দেখার জন্য।URL: /:idMethod: GETSuccess Response (200 OK):JSON{
+
+C. Get Single Payment Method
+নির্দিষ্ট একটি মেথডের ডিটেইলস দেখার জন্য।
+URL: /:id
+Method: GET
+Success Response (200 OK):JSON
+{
     "success": true,
     "data": {
         "id": 1,
-        "methodName": "Bkash",
-        "paymentGuide": "..."
+        "methodType": "mobile",
+        "providerName": "askdjf",
+        "bankLogoUrl": "https://localhost:5000/public/uploads/banklogos/1777458212038-image.jpg",
+        "accountNumber": "aasdf",
+        "accountType": "personal",
+        "paymentGuide": "asdfasdfgadfg",
+        "status": "active",
+        "createdAt": "2026-04-29T10:23:32.000Z",
+        "updatedAt": "2026-04-29T10:23:32.000Z"
     }
 }
-D. Update Payment Methodবিদ্যমান কোনো মেথডের তথ্য পরিবর্তন করার জন্য।URL: /:idMethod: PUTRequest Body (JSON):(শুধুমাত্র যে ফিল্ডগুলো পরিবর্তন করতে চান সেগুলো পাঠালেই হবে)JSON{
-    "status": "inactive",
-    "paymentGuide": "Updated guide message."
+
+D. Update Payment Methodবিদ্যমান কোনো মেথডের তথ্য পরিবর্তন করার জন্য।URL: 
+/:id
+Method: PUT
+Request Body (JSON):(শুধুমাত্র যে ফিল্ডগুলো পরিবর্তন করতে চান সেগুলো পাঠালেই হবে)JSON
+{
+  "File" ====> bankLogoUrl
+    "methodType": "mobile", 
+    "providerName": "Bkash",
+    "accountNumber": "01700000000",
+    "accountType": "personal/agent/saving",
+    "paymentGuide": "Send money to this number and provide transaction ID.",
+    "status": "active"
 }
-E. Delete Payment Methodকোনো পেমেন্ট মেথড চিরতরে মুছে ফেলার জন্য।URL: /:idMethod: DELETESuccess Response (200 OK):JSON{
+
+E. Delete Payment Methodকোনো পেমেন্ট মেথড চিরতরে মুছে ফেলার জন্য।
+URL: /:id
+Method: DELETE
+Success Response (200 OK):
+JSON{
     "success": true,
     "message": "Payment method deleted successfully"
 }
