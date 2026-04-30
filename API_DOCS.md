@@ -189,6 +189,15 @@ JSON
 D. Get single currency rate
 Endpoint: /currency/:id
 Method: GET
+Response: {
+    "id": 1,
+    "countryName": "dsfg",
+    "flagUrl": "https://localhost:5000/public/uploads/flags/1777292450118-ai.svg",
+    "currencyName": "df",
+    "rateInUsd": "45.000000",
+    "createdAt": "2026-04-27T12:20:50.000Z",
+    "updatedAt": "2026-04-27T12:20:50.000Z"
+}
 
 E. Delete Currency Rate: 
 Encpoint: /currency/:id
@@ -293,7 +302,21 @@ JSON
   "email": "john@example.com",
   "password": "mysecretpassword"
 }
-
+Response: {
+  {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzc3NTIzNzgyLCJleHAiOjE3Nzc1MjczODJ9.3chve6cSVUf2wcVDBeACtGpZ0F3LM9YKFDL24lI1uuY",
+    "user": {
+        "id": 2,
+        "currencyId": 0,
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "a@gmail.com",
+        "phone": "01700000010",
+        "role": "admin",
+        "status": "active"
+    }
+}
+}
 
 
 

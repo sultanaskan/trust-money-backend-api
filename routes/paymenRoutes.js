@@ -19,7 +19,12 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+    storage,
+    limits: {
+        fileSize: 1 * 1024 * 1024 // 1 মেগাবাইট (Bytes এ কনভার্ট করা)
+    }
+});
 
 
 

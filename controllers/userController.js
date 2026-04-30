@@ -80,6 +80,7 @@ exports.login = async (req, res) => {
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );
+            console.log(user)
 
             // রেসপন্সে ইউজারের নতুন ফিল্ডগুলো পাঠানো
             res.json({
@@ -90,7 +91,7 @@ exports.login = async (req, res) => {
                     lastName: user.lastName,
                     email: user.email,
                     phone: user.phone,
-                    country: user.countryName,
+                    currencyId: user.currencyId,
                     role: user.role,
                     status: user.status
                 }
