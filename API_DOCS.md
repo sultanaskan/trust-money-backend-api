@@ -425,6 +425,106 @@ JSON{
 
 
 
+1. Create Money Request
+নতুন একটি টাকার রিকোয়েস্ট জমা দেওয়ার জন্য।
+URL: /
+Method: POST
+Auth Required: Yes
+Request Body:
+JSON
+{
+  "paymentMethod": "bKash",
+  "amount": 5000.00
+}
+Success Response (201):
+
+JSON
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "userId": 10,
+    "paymentMethod": "bKash",
+    "amount": 5000.00,
+    "status": "pending",
+    "updatedAt": "2024-03-21T...",
+    "createdAt": "2024-03-21T..."
+  }
+}
+2. Get My Requests
+লগইন করা ইউজার তার নিজের করা সব রিকোয়েস্ট দেখতে পাবে।
+URL: /my
+Method: GET
+Auth Required: Yes
+Success Response (200):
+JSON
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "amount": 5000.00,
+      "status": "pending",
+      "createdAt": "2024-03-21T..."
+    }
+  ]
+}
+3. Get All Requests (Admin Only)
+সিস্টেমের সব ইউজারের রিকোয়েস্ট দেখার জন্য (অ্যাডমিন প্যানেলের জন্য)।
+URL: /all
+Method: GET
+Auth Required: Yes (Admin Role)
+Success Response (200):
+JSON
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "amount": 5000.00,
+      "status": "pending",
+      "User": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john@example.com"
+      }
+    }
+  ]
+}
+4. Update Request Status (Admin Only)
+কোনো রিকোয়েস্ট Approve বা Reject করার জন্য।
+URL: /:id
+Method: PUT
+Auth Required: Yes (Admin/Moderator)
+Request Body:
+JSON
+{
+  "status": "approved" 
+}
+Status Options: pending, approved, rejected
+Success Response (200):
+JSON
+{
+  "success": true,
+  "message": "Status updated",
+  "data": { "id": 1, "status": "approved" }
+}
+5. Delete Request
+পেন্ডিং থাকা অবস্থায় কোনো রিকোয়েস্ট মুছে ফেলার জন্য।
+URL: /:id
+Method: DELETE
+Auth Required: Yes
+Success Response (200):
+JSON
+{
+  "success": true,
+  "message": "Request deleted"
+}
+
+
+
+
+
 🛠 টেকনিক্যাল নোট:
 Content-Type: সব রিকোয়েস্টের জন্য Content-Type: application/json ব্যবহার করতে হবে।
 স

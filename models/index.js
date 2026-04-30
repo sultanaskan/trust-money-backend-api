@@ -6,6 +6,7 @@ const CompanyDoc = require('./CompanyDoc');
 const CurrencyRate = require('./CurrencyRate');
 const Wallet = require('./Wallet');
 const PaymentMethod = require('./PaymentMethod');
+const MoneyRequest = require('./MoneyRequest')
 
 
 
@@ -18,5 +19,6 @@ module.exports = {
     CompanyDoc,
     CurrencyRate,
     Wallet,
-    PaymentMethod
+    PaymentMethod,
+    MoneyRequest
 };

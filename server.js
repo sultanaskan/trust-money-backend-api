@@ -14,6 +14,7 @@ const userRoutes = require('./routes/userRoutes');
 const packageRoutes = require('./routes/packageRoutes');
 const paymentRoutes = require('./routes/paymenRoutes');
 const summary = require("./controllers/dashboardSummaryController");
+const moneyRequestRoutes = require("./routes/moneyRequestRoutes")
 
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/currency', currencyRoute)
 app.use('/api/user', userRoutes)
 app.use('/api/package', packageRoutes)
 app.use('/api/payment', paymentRoutes)
+app.use('/api/money_request', moneyRequestRoutes)
 
 app.get('/api/summary/:id', summary.getDashboardSummary);
 
