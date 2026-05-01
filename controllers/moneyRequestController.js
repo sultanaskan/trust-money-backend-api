@@ -16,7 +16,7 @@ exports.createRequest = async (req, res) => {
         if (req.file) {
             const protocol = req.headers['x-forwarded-proto'] || req.protocol;
             const host = req.get('host');
-            recitUrl = `${protocol}s://${host}/public/uploads/receipts/${req.file.filename}`;
+            recitUrl = `${protocol}://${host}/public/uploads/receipts/${req.file.filename}`;
         }
 
         const newRequest = await MoneyRequest.create({
