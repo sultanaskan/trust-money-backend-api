@@ -69,10 +69,7 @@ exports.login = async (req, res) => {
 
         if (user && await bcrypt.compare(password, user.password)) {
 
-            // অ্যাকাউন্ট একটিভ আছে কি না চেক করা
-            if (user.status !== 'active') {
-                return res.status(403).json({ message: "Your account is not active." });
-            }
+
 
             // টোকেন তৈরি
             const token = jwt.sign(

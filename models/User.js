@@ -31,6 +31,7 @@ const User = sequelize.define('User', {
     password: {
         type: DataTypes.STRING,
         allowNull: false
+
         // কন্ট্রোলারে এটি অবশ্যই bcrypt দিয়ে হ্যাশ করে সেভ করবেন
     },
     currencyId: {
