@@ -161,7 +161,7 @@ exports.getUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { firstName, lastName, phone, email, role, status, password } = req.body;
+        const { firstName, lastName, phone, email, role, status } = req.body;
 
         // ইউজারটি ডাটাবেসে আছে কিনা চেক করা
         let user = await User.findByPk(id);
@@ -172,10 +172,6 @@ exports.updateUser = async (req, res) => {
         // যদি পাসওয়ার্ড আপডেট করতে চায়, তবে সেটি হ্যাশ করে নেওয়া
         let updatedData = { firstName, lastName, phone, email, role, status };
 
-        if (password) {
-            const salt = await bcrypt.genSalt(10);
-            updatedData.password = await bcrypt.hash(password, salt);
-        }
 
         // আপডেট করা
         await user.update(updatedData);
