@@ -15,6 +15,8 @@ const packageRoutes = require('./routes/packageRoutes');
 const paymentRoutes = require('./routes/paymenRoutes');
 const summary = require("./controllers/dashboardSummaryController");
 const moneyRequestRoutes = require("./routes/moneyRequestRoutes")
+const bannerRoutes = require("./routes/bannerRoutes")
+const notificationRoutes = require("./routes/notificationRoutes")
 
 
 const app = express();
@@ -32,6 +34,8 @@ app.use('/api/user', userRoutes)
 app.use('/api/package', packageRoutes)
 app.use('/api/payment', paymentRoutes)
 app.use('/api/money_request', moneyRequestRoutes)
+app.use('/api/banner', bannerRoutes)
+app.use('/api/notification', notificationRoutes)
 
 app.get('/api/summary/:id', summary.getDashboardSummary);
 

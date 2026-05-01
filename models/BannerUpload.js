@@ -1,25 +1,22 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const CurrencyRate = require('./CurrencyRate');
 
 const BannerUpload = sequelize.define('BannerUpload', {
+    title: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     bannerUrl: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         validate: { notEmpty: true }
     },
-}, {
-    timestamps: true,
-    // সিকিউরিটির জন্য পাসওয়ার্ড হাইড করে রাখা (JSON এ দেখাবে না)
-    defaultScope: {
-        attributes: { exclude: ['password'] }
-    },
-    scopes: {
-        withPassword: {
-            attributes: {},
-        }
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
+}, {
+    timestamps: true
 });
 
-
-module.exports = BannerUPload;
+module.exports = BannerUpload;

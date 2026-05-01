@@ -6,8 +6,20 @@ const CompanyDoc = require('./CompanyDoc');
 const CurrencyRate = require('./CurrencyRate');
 const Wallet = require('./Wallet');
 const PaymentMethod = require('./PaymentMethod');
-const MoneyRequest = require('./MoneyRequest')
+const MoneyRequest = require('./MoneyRequest');
+const BannerUpload = require('./BannerUpload');
+const Notification = require('./Notification')
 
+
+
+// ১. User এবং MoneyRequest এর সম্পর্ক
+User.hasMany(MoneyRequest, {
+    foreignKey: 'userId',
+    onDelete: 'CASCADE' // ইউজার ডিলিট হলে তার সব রিকোয়েস্ট ডিলিট হয়ে যাবে
+});
+MoneyRequest.belongsTo(User, {
+    foreignKey: 'userId'
+});
 
 
 // সবগুলো মডেলকে একটি অবজেক্ট হিসেবে এক্সপোর্ট করা হচ্ছে
@@ -20,5 +32,7 @@ module.exports = {
     CurrencyRate,
     Wallet,
     PaymentMethod,
-    MoneyRequest
+    MoneyRequest,
+    BannerUpload,
+    Notification
 };

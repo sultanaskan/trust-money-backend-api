@@ -378,7 +378,7 @@ Success Response (200 OK):JSON
 
 C. Get Single Payment Method
 নির্দিষ্ট একটি মেথডের ডিটেইলস দেখার জন্য।
-URL: /:id
+URL: /payment/:id
 Method: GET
 Success Response (200 OK):JSON
 {
@@ -397,8 +397,7 @@ Success Response (200 OK):JSON
     }
 }
 
-D. Update Payment Methodবিদ্যমান কোনো মেথডের তথ্য পরিবর্তন করার জন্য।URL: 
-/:id
+D. Update Payment Methodবিদ্যমান কোনো মেথডের তথ্য পরিবর্তন করার জন্য।URL: /payment/:id
 Method: PUT
 Request Body (JSON):(শুধুমাত্র যে ফিল্ডগুলো পরিবর্তন করতে চান সেগুলো পাঠালেই হবে)JSON
 {
@@ -423,55 +422,61 @@ JSON{
 
 
 
-
-
+10) ==================10 money request endpoints======
 1. Create Money Request
-নতুন একটি টাকার রিকোয়েস্ট জমা দেওয়ার জন্য।
-URL: /
+নতুন একটি টাকার রিকোয়েস্ট জমা দেওয়ার জন্য। যেহেতু এখানে ইমেজ আপলোড আছে, তাই Body Type অবশ্যই form-data হতে হবে।
+URL: /money_request
 Method: POST
 Auth Required: Yes
-Request Body:
-JSON
-{
-  "paymentMethod": "bKash",
-  "amount": 5000.00
-}
+Body Type: multipart/form-data
+Fields:
+userId: (Int): 
+paymentMethod (String): মেথড নাম (e.g., bKash, Rocket) [Required]
+amount (Decimal): টাকার পরিমাণ [Required]
+transactionId (String): ট্রানজেকশন আইডি [Optional]
+recitImage (File): পেমেন্ট রিসিটের ছবি (Max: 1MB) [Optional]
 Success Response (201):
-
 JSON
 {
   "success": true,
+  "message": "Money request submitted successfully",
   "data": {
     "id": 1,
     "userId": 10,
     "paymentMethod": "bKash",
-    "amount": 5000.00,
+    "amount": "5000.00",
+    "transactionId": "TRX123456",
+    "recitUrl": "https://yourdomain.com/public/uploads/receipts/17123456-image.jpg",
     "status": "pending",
-    "updatedAt": "2024-03-21T...",
-    "createdAt": "2024-03-21T..."
+    "createdAt": "2026-05-01T..."
   }
 }
+
 2. Get My Requests
-লগইন করা ইউজার তার নিজের করা সব রিকোয়েস্ট দেখতে পাবে।
-URL: /my
+ইউজার তার আইডি URL-এ পাঠিয়ে সব রিকোয়েস্টের হিস্ট্রি দেখতে পাবে।
+URL: /money_request/my/:userId (Example: /my/10)
 Method: GET
-Auth Required: Yes
+Auth Required: No
 Success Response (200):
 JSON
 {
   "success": true,
+  "count": 1,
   "data": [
     {
       "id": 1,
-      "amount": 5000.00,
+      "amount": "5000.00",
       "status": "pending",
-      "createdAt": "2024-03-21T..."
+      "transactionId": "TRX123456",
+      "recitUrl": "https://yourdomain.com/public/uploads/receipts/image.jpg",
+      "userId": 10,
+      "createdAt": "2026-05-01T..."
     }
   ]
 }
 3. Get All Requests (Admin Only)
-সিস্টেমের সব ইউজারের রিকোয়েস্ট দেখার জন্য (অ্যাডমিন প্যানেলের জন্য)।
-URL: /all
+অ্যাডমিন প্যানেলের জন্য সব ইউজারের রিকোয়েস্ট লিস্ট।
+URL: /money_request/all
 Method: GET
 Auth Required: Yes (Admin Role)
 Success Response (200):
@@ -481,46 +486,224 @@ JSON
   "data": [
     {
       "id": 1,
-      "amount": 5000.00,
+      "amount": "5000.00",
       "status": "pending",
       "User": {
+        "id": 10,
         "firstName": "John",
         "lastName": "Doe",
-        "email": "john@example.com"
+        "email": "john@example.com",
+        "phone": "017XXXXXXXX"
       }
     }
   ]
 }
 4. Update Request Status (Admin Only)
-কোনো রিকোয়েস্ট Approve বা Reject করার জন্য।
-URL: /:id
+রিকোয়েস্ট Approve বা Reject করার জন্য।
+URL: /money_request/:id
 Method: PUT
 Auth Required: Yes (Admin/Moderator)
+Body Type: application/json
 Request Body:
 JSON
 {
   "status": "approved" 
 }
-Status Options: pending, approved, rejected
+Valid Status: pending, approved, rejected
+
 Success Response (200):
+
 JSON
 {
   "success": true,
-  "message": "Status updated",
+  "message": "Request status updated to approved",
   "data": { "id": 1, "status": "approved" }
 }
 5. Delete Request
-পেন্ডিং থাকা অবস্থায় কোনো রিকোয়েস্ট মুছে ফেলার জন্য।
-URL: /:id
+রিকোয়েস্ট মুছে ফেলার জন্য। এটি ডাটাবেস থেকে রেকর্ড এবং সার্ভার থেকে ইমেজ—উভয়ই ডিলিট করবে।
+URL: /money_request/:id
 Method: DELETE
 Auth Required: Yes
 Success Response (200):
 JSON
 {
   "success": true,
-  "message": "Request deleted"
+  "message": "Request deleted successfully"
 }
 
+
+
+🖼️ Banner Upload API Documentation
+1. Upload a New Banner
+এই এন্ডপয়েন্টটি ব্যবহার করে সার্ভারে নতুন ব্যানার ইমেজ আপলোড করা হয়।
+URL: /banner
+Method: POST
+Content-Type: multipart/form-data
+Body Parameters:
+bannerImage (File): ইমেজ ফাইল (Max 1MB, types: jpg, png, webp) [Required]
+title (String): ব্যানারের নাম বা টাইটেল [Optional]
+Success Response (201):
+JSON
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "Summer Sale",
+    "bannerUrl": "http://yourdomain.com/public/uploads/banners/banner-17145456.jpg",
+    "isActive": true,
+    "createdAt": "2026-05-01T..."
+  }
+}
+2. Get All Banners
+সিস্টেমে থাকা সব ব্যানারের লিস্ট দেখার জন্য।
+URL: /banner
+Method: GET
+Auth Required: No
+Success Response (200):
+JSON
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Summer Sale",
+      "bannerUrl": "...",
+      "isActive": true
+    }
+  ]
+}
+3. Delete a Banner
+নির্দিষ্ট কোনো ব্যানার ডাটাবেস এবং সার্ভার স্টোরেজ থেকে মুছে ফেলার জন্য।
+URL: /:id (Example: /api/banners/1)
+Method: DELETE
+Success Response (200):
+JSON
+{
+  "success": true,
+  "message": "Banner deleted successfully"
+}
+
+
+
+
+🔔 Notification API Documentation (Detailed)
+Base URL: 
+1. Create Notification (Admin)
+অ্যাডমিন এই এন্ডপয়েন্ট ব্যবহার করে পাবলিক অথবা নির্দিষ্ট কোনো ইউজারের জন্য নোটিফিকেশন তৈরি করতে পারবে।
+URL: /notification
+Method: POST
+Payload (JSON):
+JSON
+{
+  "userId": 10, 
+  "title": "নতুন অফার!",
+  "message": "আজকের জন্য ১০% ক্যাশব্যাক অফার চলছে।"
+}
+    *(নোট: `userId` না পাঠালে বা `null` পাঠালে এটি সবার জন্য পাবলিক নোটিফিকেশন হিসেবে সেভ হবে)*
+*   **Success Response (201):**
+    ```json
+    {
+      "success": true,
+      "data": {
+        "id": 5,
+        "userId": 10,
+        "title": "নতুন অফার!",
+        "message": "আজকের জন্য ১০% ক্যাশব্যাক অফার চলছে।",
+        "isRead": false,
+        "updatedAt": "2026-05-01T...",
+        "createdAt": "2026-05-01T..."
+      }
+    }
+    ```
+
+---
+
+### 2. Get User Notifications (User App)
+লগইন করা ইউজার তার নিজের আইডি ব্যবহার করে তার পার্সোনাল এবং সব পাবলিক নোটিফিকেশন একসাথে দেখতে পাবে।
+
+*   **URL:** `/notification/user/:userId` (Example: `/api/notifications/user/10`)
+*   **Method:** `GET`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "count": 2,
+      "data": [
+        {
+          "id": 5,
+          "title": "পার্সোনাল নোটিফিকেশন",
+          "message": "আপনার টাকা সফলভাবে যোগ হয়েছে।",
+          "isRead": false,
+          "createdAt": "..."
+        },
+        {
+          "id": 2,
+          "title": "পাবলিক নোটিশ",
+          "message": "আগামীকাল সার্ভার মেইনটেন্যান্স চলবে।",
+          "isRead": false,
+          "createdAt": "..."
+        }
+      ]
+    }
+    ```
+
+---
+
+### 3. Get All Notifications (Admin Only)
+সিস্টেমের সব নোটিফিকেশন (পাবলিক ও প্রাইভেট সব) দেখার জন্য।
+
+*   **URL:** `notification/all`
+*   **Method:** `GET`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "data": [
+        { "id": 5, "userId": 10, "title": "...", "message": "..." },
+        { "id": 4, "userId": null, "title": "...", "message": "..." }
+      ]
+    }
+    ```
+
+---
+
+### 4. Mark as Read
+কোনো নোটিফিকেশন ইউজার পড়ে ফেললে তার স্ট্যাটাস আপডেট করার জন্য।
+
+*   **URL:** `/notification/read/:id` (Example: `/api/notification/read/5`)
+*   **Method:** `PUT`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "message": "Marked as read",
+      "data": { "id": 5, "isRead": true }
+    }
+    ```
+
+---
+
+### 5. Delete Notification
+অ্যাডমিন বা ইউজার চাইলে কোনো নোটিফিকেশন মুছে ফেলতে পারে।
+
+*   **URL:** `/notification/:id` (Example: `/api/notifications/5`)
+*   **Method:** `DELETE`
+*   **Success Response (200):**
+    ```json
+    {
+      "success": true,
+      "message": "Notification deleted"
+    }
+    ```
+
+---
+
+### 💡 ডেভেলপার নোট:
+1.  **Payload Validation:** `POST` রিকোয়েস্টে `title` এবং `message` না পাঠালে সার্ভার থেকে এরর আসবে।
+2.  **Op.or Logic:** `getUserNotifications` কন্ট্রোলারে `userId: null` এবং `userId: currentId` উভয় কন্ডিশন ব্যবহার করা হয়েছে, যাতে ইউজার একই সাথে জেনারেল নোটিশ এবং নিজের পার্সোনাল মেসেজ দেখতে পায়।
+3.  **Order:** সব লিস্ট এপিআই-তে `DESC` অর্ডার দেওয়া হয়েছে যাতে ইউজার সব সময় **নতুন (Latest)** নোটিফিকেশন আগে দেখে।
+
+এই এপিআই গুলো ব্যবহার করে আপনি আপনার মোবাইল অ্যাপে একটি চমৎকার নোটিফিকেশন ইনবক্স তৈরি
 
 
 
