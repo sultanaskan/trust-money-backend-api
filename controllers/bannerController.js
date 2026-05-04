@@ -11,7 +11,7 @@ exports.uploadBanner = async (req, res) => {
 
         const protocol = req.headers['x-forwarded-proto'] || req.protocol;
         const host = req.get('host');
-        const imageUrl = `${protocol}s://${host}/public/uploads/banners/${req.file.filename}`;
+        const imageUrl = `${protocol}://${host}/public/uploads/banners/${req.file.filename}`;
 
         const banner = await BannerUpload.create({
             title: req.body.title || "Untitled Banner",
