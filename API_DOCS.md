@@ -6,6 +6,7 @@ Remote Base URl: https://trustmoneyapi.wellcometoserbia.com/api
 
 
 
+
 ৩. ব্যাংকিং প্যাকেজ (Packages)
 A. প্যাকেজ সেট করা (Admin Only)
 Endpoint: /package
@@ -62,6 +63,17 @@ B. সব ডকুমেন্ট দেখা
 Endpoint: /api/doc
 Method: GET
 Description: আপলোড করা সকল ডকুমেন্টের লিস্ট দেখার জন্য (নতুনগুলো আগে দেখাবে)।
+Response: [
+    {
+        "id": 4,
+        "title": "B name",
+        "fileUrl": "https://trustmoneyapi.wellcometoserbia.compublic/uploads/docs/1777861254034-trust bank visa card.png",
+        "docType": "adsf",
+        "description": "45asdfaf",
+        "createdAt": "2026-05-04T02:20:54.000Z",
+        "updatedAt": "2026-05-04T02:20:54.000Z"
+    },
+]
 
 C. ডকুমেন্ট আপডেট করা
 Endpoint: /api/doc/:id

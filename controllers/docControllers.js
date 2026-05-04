@@ -15,9 +15,9 @@ exports.postDoc = async (req, res) => {
         // ভেরিয়েবল নাম ঠিক করা হয়েছে (docUrl -> fileUrl)
         let fileUrl;
         if (req.get('host') === "localhost") {
-            fileUrl = `${req.protocol}://${req.get('host')}public/uploads/docs/${req.file.filename}`;
+            fileUrl = `${req.protocol}://${req.get('host')}/public/uploads/docs/${req.file.filename}`;
         } {
-            fileUrl = `${req.protocol}s://${req.get('host')}public/uploads/docs/${req.file.filename}`;
+            fileUrl = `${req.protocol}s://${req.get('host')}/public/uploads/docs/${req.file.filename}`;
         }
 
         if (!title) {
