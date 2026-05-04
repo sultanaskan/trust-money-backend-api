@@ -1,5 +1,5 @@
-const { 
-    User, Wallet, Transaction, MoneyRequest, Package, sequelize 
+const {
+    User, Wallet, Transaction, MoneyRequest, Package, sequelize
 } = require('../models');
 const { Op } = require('sequelize');
 

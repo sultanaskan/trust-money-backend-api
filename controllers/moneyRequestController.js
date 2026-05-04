@@ -2,14 +2,18 @@ const { MoneyRequest, User, Wallet, Transaction, sequelize } = require('../model
 const fs = require('fs');
 const path = require('path');
 
-// 1. Create - নতুন রিকোয়েস্ট তৈরি করা (userId এখন বডি থেকে আসবে)
+// 1. Create - নতুন রিকোয়েস্ট তৈরি করা (userId সরাসরি বডি থেকে আসবে)
 exports.createRequest = async (req, res) => {
     try {
-        const { paymentMethod, amount, transactionId, userId } = req.body;
+        const { paymentMethod, amount, transactionId, userId, type } = req.body;
 
-        // ভ্যালিডেশন: userId ছাড়া রিকোয়েস্ট গ্রহণ করা হবে না
+        // ভ্যালিডেশন: userId এবং type অবশ্যই থাকতে হবে
         if (!userId) {
             return res.status(400).json({ success: false, message: "userId is required" });
+        }
+
+        if (!['deposit', 'withdraw', 'recharge'].includes(type)) {
+            return res.status(400).json({ success: false, message: "Invalid request type" });
         }
 
         let recitUrl = null;
@@ -20,7 +24,8 @@ exports.createRequest = async (req, res) => {
         }
 
         const newRequest = await MoneyRequest.create({
-            userId: userId, // req.user.id এর বদলে সরাসরি userId ব্যবহার করা হয়েছে
+            userId,
+            type,
             paymentMethod,
             amount,
             transactionId: transactionId || null,
@@ -30,7 +35,7 @@ exports.createRequest = async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Money request submitted successfully",
+            message: `${type.charAt(0).toUpperCase() + type.slice(1)} request submitted successfully`,
             data: newRequest
         });
     } catch (error) {
@@ -38,7 +43,7 @@ exports.createRequest = async (req, res) => {
     }
 };
 
-// 2. Read - সব রিকোয়েস্ট দেখা
+// 2. Read - সব রিকোয়েস্ট দেখা (অ্যাডমিনের জন্য - কোনো Auth চেক নেই)
 exports.getAllRequests = async (req, res) => {
     try {
         const requests = await MoneyRequest.findAll({
@@ -55,16 +60,13 @@ exports.getAllRequests = async (req, res) => {
     }
 };
 
+// 3. Read - নির্দিষ্ট ইউজারের রিকোয়েস্ট দেখা (userId ইউআরএল প্যারামস থেকে আসবে)
 exports.getMyRequests = async (req, res) => {
     try {
-        // URL থেকে আইডি নেওয়া (যেমন: /my/:userId)
         const { userId } = req.params;
 
         if (!userId) {
-            return res.status(400).json({
-                success: false,
-                message: "userId is required in the URL parameter"
-            });
+            return res.status(400).json({ success: false, message: "userId is required" });
         }
 
         const requests = await MoneyRequest.findAll({
@@ -82,14 +84,13 @@ exports.getMyRequests = async (req, res) => {
     }
 };
 
-// 4. Update Status - রিকোয়েস্ট Approve বা Reject করা
+// 4. Update Status - এপ্রুভ বা রিজেক্ট লজিক (সরাসরি ID দিয়ে কাজ করবে)
 exports.updateStatus = async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const { id } = req.params;
         const { status } = req.body; // 'approved' or 'rejected'
 
-        // ১. মানি রিকোয়েস্ট খুঁজে বের করা
         const request = await MoneyRequest.findByPk(id, { transaction: t });
 
         if (!request) {
@@ -97,63 +98,61 @@ exports.updateStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: "Request not found" });
         }
 
-        // ২. স্ট্যাটাস চেক (শুধুমাত্র pending রিকোয়েস্ট আপডেট করা যাবে)
         if (request.status !== 'pending') {
             await t.rollback();
             return res.status(400).json({ success: false, message: `Request is already ${request.status}` });
         }
 
-        // ৩. যদি রিকোয়েস্ট এপ্রুভ করা হয়
         if (status === 'approved') {
-            // ওয়ালেট খুঁজে বের করা
             const wallet = await Wallet.findOne({ where: { userId: request.userId }, transaction: t });
 
-            if (!wallet) {
-                // ওয়ালেট না থাকলে নতুন তৈরি করা (ব্যালেন্স হিসেবে রিকোয়েস্টের অ্যামাউন্ট বসবে)
-                await Wallet.create({
-                    userId: request.userId,
-                    balance: request.amount, // মডেল অনুযায়ী ফিল্ডের নাম 'balance'
-                    status: 'active'
-                }, { transaction: t });
+            // Withdraw হলে ব্যালেন্স চেক এবং কমানো
+            if (request.type === 'withdraw') {
+                if (!wallet || wallet.balance < request.amount) {
+                    await t.rollback();
+                    return res.status(400).json({ success: false, message: "Insufficient wallet balance for withdrawal" });
+                }
+                await wallet.decrement('balance', { by: request.amount, transaction: t });
             } else {
-                // ওয়ালেট থাকলে ব্যালেন্স বাড়ানো
-                await wallet.increment('balance', {
-                    by: request.amount,
-                    transaction: t
-                });
+                // Deposit বা Recharge হলে বাড়ানো
+                if (!wallet) {
+                    await Wallet.create({
+                        userId: request.userId,
+                        balance: request.amount,
+                        status: 'active'
+                    }, { transaction: t });
+                } else {
+                    await wallet.increment('balance', { by: request.amount, transaction: t });
+                }
             }
 
-            // ট্রানজেকশন রেকর্ড তৈরি করা (Transaction মডেল অনুযায়ী)
+            // ট্রানজেকশন লগ তৈরি
             await Transaction.create({
-                transactionId: request.transactionId,
+                transactionId: request.transactionId || `TXN-${Date.now()}`,
                 userId: request.userId,
-                type: 'deposit', // এনাম টাইপ 'deposit'
+                type: request.type,
                 amount: request.amount,
                 status: 'success',
-                description: `Money request approved via ${request.paymentMethod}. TransID: ${request.transactionId || 'N/A'}`
+                description: `${request.type.toUpperCase()} approved successfully.`
             }, { transaction: t });
         }
 
-        // ৪. মানি রিকোয়েস্টের স্ট্যাটাস আপডেট করা
         await request.update({ status }, { transaction: t });
-
-        // ৫. ট্রানজেকশন কমিট করা (এটি খুব গুরুত্বপূর্ণ)
         await t.commit();
 
         res.status(200).json({
             success: true,
-            message: `Request status updated to ${status}`,
+            message: `Request ${status} successfully`,
             data: request
         });
 
     } catch (error) {
-        // কোনো সমস্যা হলে রোলব্যাক করা
         if (t) await t.rollback();
         res.status(500).json({ success: false, error: error.message });
     }
 };
 
-// 5. Delete - রিকোয়েস্ট মুছে ফেলা
+// 5. Delete - রিকোয়েস্ট মুছে ফেলা
 exports.deleteRequest = async (req, res) => {
     try {
         const { id } = req.params;
@@ -163,16 +162,16 @@ exports.deleteRequest = async (req, res) => {
             return res.status(404).json({ success: false, message: "Request not found" });
         }
 
+        // ইমেজ ফাইল ডিলিট করার লজিক
         if (request.recitUrl) {
             try {
-                // URL থেকে পাথ বের করে ফাইল ডিলিট করা
-                const parsedUrl = new URL(request.recitUrl);
-                const filePath = path.join(process.cwd(), parsedUrl.pathname);
+                const urlPath = new URL(request.recitUrl).pathname;
+                const filePath = path.join(process.cwd(), urlPath);
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
                 }
             } catch (err) {
-                console.error("File deletion failed:", err.message);
+                console.error("File deletion error:", err.message);
             }
         }
 

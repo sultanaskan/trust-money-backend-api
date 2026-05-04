@@ -434,63 +434,68 @@ JSON{
 
 
 
-10) ==================10 money request endpoints======
+
+
+কন্ট্রোলারের লেটেস্ট আপডেট (যেখানে Authentication রিমুভ করা হয়েছে) অনুযায়ী আপনার Money Request API Documentation নিচে আপডেট করে দেওয়া হলো। এখন এই এন্ডপয়েন্টগুলো কল করার জন্য কোনো হেডার টোকেন বা অথেন্টিকেশন প্রয়োজন হবে না।
+
+💰 Money Request API Documentation (Updated - No Auth Required)
 1. Create Money Request
-নতুন একটি টাকার রিকোয়েস্ট জমা দেওয়ার জন্য। যেহেতু এখানে ইমেজ আপলোড আছে, তাই Body Type অবশ্যই form-data হতে হবে।
+নতুন একটি টাকার রিকোয়েস্ট (Deposit/Withdraw/Recharge) জমা দেওয়ার জন্য। ইমেজ আপলোড থাকলে অবশ্যই multipart/form-data ব্যবহার করতে হবে।
+
 URL: /money_request
 Method: POST
-Auth Required: Yes
+Auth Required: No
 Body Type: multipart/form-data
 Fields:
-userId: (Int): 
-paymentMethod (String): মেথড নাম (e.g., bKash, Rocket) [Required]
-amount (Decimal): টাকার পরিমাণ [Required]
-transactionId (String): ট্রানজেকশন আইডি [Optional]
-recitImage (File): পেমেন্ট রিসিটের ছবি (Max: 1MB) [Optional]
+userId (Int): ইউজারের আইডি। [Required]
+type (String): রিকোয়েস্টের ধরন (deposit, withdraw, recharge)। [Required]
+paymentMethod (String): মেথড নাম (e.g., bKash, Nagad, Bank)। [Required]
+amount (Decimal): টাকার পরিমাণ। [Required]
+transactionId (String): পেমেন্ট ট্রানজেকশন আইডি। [Optional]
+recitImage (File): পেমেন্ট রিসিটের ছবি (Max: 1MB)। [Optional]
 Success Response (201):
 JSON
 {
   "success": true,
-  "message": "Money request submitted successfully",
+  "message": "Deposit request submitted successfully",
   "data": {
     "id": 1,
     "userId": 10,
+    "type": "deposit",
     "paymentMethod": "bKash",
     "amount": "5000.00",
-    "transactionId": "TRX123456",
-    "recitUrl": "https://yourdomain.com/public/uploads/receipts/17123456-image.jpg",
-    "status": "pending",
-    "createdAt": "2026-05-01T..."
+    "transactionId": "TRX998877",
+    "recitUrl": "https://api.yourdomain.com/public/uploads/receipts/1714842550.jpg",
+    "status": "pending"
   }
 }
 
-2. Get My Requests
-ইউজার তার আইডি URL-এ পাঠিয়ে সব রিকোয়েস্টের হিস্ট্রি দেখতে পাবে।
-URL: /money_request/my/:userId (Example: /my/10)
+2. Get My Requests (User History)
+ইউজার আইডি প্যারামিটারে পাঠিয়ে তার ব্যক্তিগত রিকোয়েস্ট হিস্ট্রি দেখা যাবে।
+URL: /money_request/my/:userId
 Method: GET
 Auth Required: No
 Success Response (200):
 JSON
 {
   "success": true,
-  "count": 1,
+  "count": 2,
   "data": [
     {
-      "id": 1,
-      "amount": "5000.00",
+      "id": 2,
+      "type": "withdraw",
+      "amount": "1000.00",
       "status": "pending",
-      "transactionId": "TRX123456",
-      "recitUrl": "https://yourdomain.com/public/uploads/receipts/image.jpg",
-      "userId": 10,
-      "createdAt": "2026-05-01T..."
+      "createdAt": "2026-05-04T..."
     }
   ]
 }
-3. Get All Requests (Admin Only)
-অ্যাডমিন প্যানেলের জন্য সব ইউজারের রিকোয়েস্ট লিস্ট।
+
+3. Get All Requests (Admin Panel)
+সিস্টেমের সব ইউজারের সব ধরনের রিকোয়েস্ট লিস্ট দেখার জন্য।
 URL: /money_request/all
 Method: GET
-Auth Required: Yes (Admin Role)
+Auth Required: No
 Success Response (200):
 JSON
 {
@@ -498,50 +503,52 @@ JSON
   "data": [
     {
       "id": 1,
+      "type": "deposit",
       "amount": "5000.00",
       "status": "pending",
       "User": {
         "id": 10,
-        "firstName": "John",
-        "lastName": "Doe",
-        "email": "john@example.com",
-        "phone": "017XXXXXXXX"
+        "firstName": "Rasel",
+        "phone": "01710253553"
       }
     }
   ]
 }
-4. Update Request Status (Admin Only)
-রিকোয়েস্ট Approve বা Reject করার জন্য।
+
+4. Update Request Status
+রিকোয়েস্ট Approve বা Reject করার জন্য। Approve করলে অটোমেটিক ওয়ালেট থেকে টাকা যোগ/বিয়োগ হবে।
 URL: /money_request/:id
 Method: PUT
-Auth Required: Yes (Admin/Moderator)
+Auth Required: No
 Body Type: application/json
 Request Body:
 JSON
 {
   "status": "approved" 
 }
-Valid Status: pending, approved, rejected
-
+বিঃদ্রঃ: যদি type উইথড্র হয় এবং ইউজারের ব্যালেন্স কম থাকে, তবে এটি 400 Bad Request রিটার্ন করবে।
 Success Response (200):
-
 JSON
 {
   "success": true,
-  "message": "Request status updated to approved",
+  "message": "Request approved successfully",
   "data": { "id": 1, "status": "approved" }
 }
 5. Delete Request
-রিকোয়েস্ট মুছে ফেলার জন্য। এটি ডাটাবেস থেকে রেকর্ড এবং সার্ভার থেকে ইমেজ—উভয়ই ডিলিট করবে।
+ডাটাবেস থেকে রেকর্ড এবং সার্ভার থেকে আপলোড করা ফাইল স্থায়ীভাবে মুছে ফেলার জন্য।
 URL: /money_request/:id
 Method: DELETE
-Auth Required: Yes
+Auth Required: No
 Success Response (200):
 JSON
 {
   "success": true,
   "message": "Request deleted successfully"
 }
+
+
+
+
 
 
 

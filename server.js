@@ -17,8 +17,7 @@ const summary = require("./controllers/dashboardSummaryController");
 const moneyRequestRoutes = require("./routes/moneyRequestRoutes")
 const bannerRoutes = require("./routes/bannerRoutes")
 const notificationRoutes = require("./routes/notificationRoutes")
-const summaryController = require("./controllers/summaryController")
-
+const summaryController = require('./controllers/summaryController');
 
 const app = express();
 
