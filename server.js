@@ -17,6 +17,7 @@ const summary = require("./controllers/dashboardSummaryController");
 const moneyRequestRoutes = require("./routes/moneyRequestRoutes")
 const bannerRoutes = require("./routes/bannerRoutes")
 const notificationRoutes = require("./routes/notificationRoutes")
+const summaryController = require("./controllers/summaryController")
 
 
 const app = express();
@@ -37,7 +38,7 @@ app.use('/api/money_request', moneyRequestRoutes)
 app.use('/api/banner', bannerRoutes)
 app.use('/api/notification', notificationRoutes)
 
-app.get('/api/summary/:id', summary.getDashboardSummary);
+app.get('/api/summary', summaryController.getAdminSummary);
 
 // --- ৩. ট্রানজ্যাকশন রাউটস ---
 

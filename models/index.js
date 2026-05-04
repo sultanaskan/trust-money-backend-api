@@ -20,6 +20,23 @@ User.hasMany(MoneyRequest, {
 MoneyRequest.belongsTo(User, {
     foreignKey: 'userId'
 });
+// User এবং Transaction এর সম্পর্ক
+User.hasMany(Transaction, {
+    foreignKey: 'userId',
+    onDelete: 'CASCADE'
+});
+Transaction.belongsTo(User, {
+    foreignKey: 'userId'
+});
+
+// Wallet এবং User এর সম্পর্ক (এটিও ড্যাশবোর্ডের জন্য প্রয়োজন হবে)
+User.hasOne(Wallet, {
+    foreignKey: 'userId',
+    onDelete: 'CASCADE'
+});
+Wallet.belongsTo(User, {
+    foreignKey: 'userId'
+});
 
 
 // সবগুলো মডেলকে একটি অবজেক্ট হিসেবে এক্সপোর্ট করা হচ্ছে

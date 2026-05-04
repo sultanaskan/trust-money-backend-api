@@ -546,7 +546,7 @@ JSON
 
 
 🖼️ Banner Upload API Documentation
-1. Upload a New Banner
+11. Upload a New Banner
 এই এন্ডপয়েন্টটি ব্যবহার করে সার্ভারে নতুন ব্যানার ইমেজ আপলোড করা হয়।
 URL: /banner
 Method: POST
@@ -600,7 +600,7 @@ JSON
 
 🔔 Notification API Documentation (Detailed)
 Base URL: 
-1. Create Notification (Admin)
+12. Create Notification (Admin)
 অ্যাডমিন এই এন্ডপয়েন্ট ব্যবহার করে পাবলিক অথবা নির্দিষ্ট কোনো ইউজারের জন্য নোটিফিকেশন তৈরি করতে পারবে।
 URL: /notification
 Method: POST
@@ -709,6 +709,141 @@ JSON
     ```
 
 ---
+
+
+
+১৩. অ্যাডমিন ড্যাশবোর্ড এপিআই ডকুমেন্টেশন
+Get Dashboard Statistics
+অ্যাডমিন প্যানেলে লগইন করার পর মেইন স্ক্রিনের জন্য।
+URL: /summary
+Method: GET
+Success Response (200):
+JSON
+{
+  "success": true,
+  "summary": {
+    "users": { "total": 1250, "active": 1200, "agents": 50 },
+    "finance": {
+      "totalSystemBalance": 500000.00,
+      "totalDeposits": 1200000.00,
+      "totalWithdrawals": 700000.00
+    },
+    "requests": { "pendingCount": 15, "approvedVolume": 1150000.00 }
+  }
+}
+
+Example: 
+"{
+    "success": true,
+    "summary": {
+        "users": {
+            "total": 30,
+            "active": 27,
+            "agents": 0
+        },
+        "finance": {
+            "totalSystemBalance": 404608,
+            "totalDeposits": 404608,
+            "totalWithdrawals": 0,
+            "revenue": 404608
+        },
+        "requests": {
+            "pendingCount": 3,
+            "approvedVolume": 404608
+        }
+    },
+    "recentActivity": [
+        {
+            "id": 5,
+            "transactionId": null,
+            "userId": 32,
+            "type": "deposit",
+            "amount": "23425.00",
+            "status": "success",
+            "description": "Money request approved via Dbbl. TransID: N/A",
+            "createdAt": "2026-05-03T17:30:01.000Z",
+            "updatedAt": "2026-05-03T17:30:01.000Z",
+            "User": {
+                "firstName": "kaj ",
+                "lastName": "jb",
+                "email": "subcriptionpay2@gmail.com"
+            }
+        },
+        {
+            "id": 4,
+            "transactionId": "hjsnfjf",
+            "userId": 8,
+            "type": "deposit",
+            "amount": "23425.00",
+            "status": "success",
+            "description": "Money request approved via Bk. TransID: hjsnfjf",
+            "createdAt": "2026-05-03T13:03:17.000Z",
+            "updatedAt": "2026-05-03T13:03:17.000Z",
+            "User": {
+                "firstName": "Mister ",
+                "lastName": "Person",
+                "email": "p@gmail.com"
+            }
+        },
+        {
+            "id": 3,
+            "transactionId": "bnjjjji",
+            "userId": 15,
+            "type": "deposit",
+            "amount": "1000.00",
+            "status": "success",
+            "description": "Money request approved via Bk. TransID: bnjjjji",
+            "createdAt": "2026-05-03T06:42:26.000Z",
+            "updatedAt": "2026-05-03T06:42:26.000Z",
+            "User": {
+                "firstName": "jnndf",
+                "lastName": "hdhhd",
+                "email": "h@gmail.com"
+            }
+        },
+        {
+            "id": 2,
+            "transactionId": "Fhjkjdfyuj",
+            "userId": 6,
+            "type": "deposit",
+            "amount": "333333.00",
+            "status": "success",
+            "description": "Money request approved via Bk. TransID: Fhjkjdfyuj",
+            "createdAt": "2026-05-01T17:33:47.000Z",
+            "updatedAt": "2026-05-01T17:33:47.000Z",
+            "User": {
+                "firstName": "rofik",
+                "lastName": "hossain",
+                "email": "r@gmail.com"
+            }
+        },
+        {
+            "id": 1,
+            "transactionId": "fgg",
+            "userId": 6,
+            "type": "deposit",
+            "amount": "23425.00",
+            "status": "success",
+            "description": "Money request approved via Bk. TransID: fgg",
+            "createdAt": "2026-05-01T17:28:32.000Z",
+            "updatedAt": "2026-05-01T17:28:32.000Z",
+            "User": {
+                "firstName": "rofik",
+                "lastName": "hossain",
+                "email": "r@gmail.com"
+            }
+        }
+    ]
+}"
+
+
+
+
+
+
+
+
+
 
 ### 💡 ডেভেলপার নোট:
 1.  **Payload Validation:** `POST` রিকোয়েস্টে `title` এবং `message` না পাঠালে সার্ভার থেকে এরর আসবে।
