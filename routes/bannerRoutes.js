@@ -13,7 +13,10 @@ const storage = multer.diskStorage({
         cb(null, dir);
     },
     filename: (req, file, cb) => {
-        cb(null, `banner-${Date.now()}${path.extname(file.originalname)}`);
+        // র্যান্ডম ইউনিক নাম তৈরি করা (যেমন: 1714842550-4829.jpg)
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e4);
+        const ext = path.extname(file.originalname);
+        cb(null, uniqueSuffix + ext);
     }
 });
 
