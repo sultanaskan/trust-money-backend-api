@@ -8,35 +8,26 @@ const Wallet = require('./Wallet');
 const PaymentMethod = require('./PaymentMethod');
 const MoneyRequest = require('./MoneyRequest');
 const BannerUpload = require('./BannerUpload');
-const Notification = require('./Notification')
+const Notification = require('./Notification');
+const UserVerificationDocs = require('./UserVerificationDocs');
 
 
 
 // ১. User এবং MoneyRequest এর সম্পর্ক
-User.hasMany(MoneyRequest, {
-    foreignKey: 'userId',
-    onDelete: 'CASCADE' // ইউজার ডিলিট হলে তার সব রিকোয়েস্ট ডিলিট হয়ে যাবে
-});
-MoneyRequest.belongsTo(User, {
-    foreignKey: 'userId'
-});
+User.hasMany(MoneyRequest, {foreignKey: 'userId',onDelete: 'CASCADE' });
+MoneyRequest.belongsTo(User, {foreignKey: 'userId'});
+
 // User এবং Transaction এর সম্পর্ক
-User.hasMany(Transaction, {
-    foreignKey: 'userId',
-    onDelete: 'CASCADE'
-});
-Transaction.belongsTo(User, {
-    foreignKey: 'userId'
-});
+User.hasMany(Transaction, {foreignKey: 'userId',onDelete: 'CASCADE'});
+Transaction.belongsTo(User, {foreignKey: 'userId'});
 
 // Wallet এবং User এর সম্পর্ক (এটিও ড্যাশবোর্ডের জন্য প্রয়োজন হবে)
-User.hasOne(Wallet, {
-    foreignKey: 'userId',
-    onDelete: 'CASCADE'
-});
-Wallet.belongsTo(User, {
-    foreignKey: 'userId'
-});
+User.hasOne(Wallet, {foreignKey: 'userId',onDelete: 'CASCADE'});
+Wallet.belongsTo(User, {foreignKey: 'userId'});
+
+User.hasMany(UserVerificationDocs, {foreignKey: 'userId'})
+UserVerificationDocs.belongsTo(User, {foreignKey: 'userId'})
+
 
 
 // সবগুলো মডেলকে একটি অবজেক্ট হিসেবে এক্সপোর্ট করা হচ্ছে
@@ -51,5 +42,6 @@ module.exports = {
     PaymentMethod,
     MoneyRequest,
     BannerUpload,
-    Notification
+    Notification,
+    UserVerificationDocs
 };

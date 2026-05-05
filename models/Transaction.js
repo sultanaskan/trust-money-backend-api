@@ -11,20 +11,20 @@ const Transaction = sequelize.define('Transaction', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    type: { 
-        type: DataTypes.ENUM('deposit', 'withdraw', 'transfer', 'payment'), 
-        allowNull: false 
+    type: {
+        type: DataTypes.ENUM('deposit', 'withdraw', 'recharge'),
+        allowNull: false
     },
-    amount: { 
-        type: DataTypes.DECIMAL(15, 2), 
-        allowNull: false 
+    amount: {
+        type: DataTypes.DECIMAL(15, 2),
+        allowNull: false
     },
-    status: { 
-        type: DataTypes.ENUM('pending', 'success', 'failed', 'cancelled'), 
-        defaultValue: 'pending' 
+    status: {
+        type: DataTypes.ENUM('pending', 'success', 'failed', 'cancelled'),
+        defaultValue: 'pending'
     },
-    description: { 
-        type: DataTypes.STRING 
+    description: {
+        type: DataTypes.STRING
     }
 }, {
     timestamps: true

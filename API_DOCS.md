@@ -477,19 +477,21 @@ Method: GET
 Auth Required: No
 Success Response (200):
 JSON
-{
-  "success": true,
-  "count": 2,
+success": true,
+  "count": 8,
   "data": [
     {
-      "id": 2,
-      "type": "withdraw",
-      "amount": "1000.00",
-      "status": "pending",
-      "createdAt": "2026-05-04T..."
-    }
-  ]
-}
+      "id": 9,
+      "userId": 1,
+      "type": "withdraw", ENUM('deposit', 'withdraw', 'recharge'),
+      "paymentMethod": "Bkash",
+      "amount": "4575.00",
+      "transactionId": "fdgsdg",
+      "recitUrl": "http://localhost:5000/public/uploads/receipts/1777916893237-ima.jpg",
+      "status": "rejected", ('pending', 'approved', 'rejected'),
+      "createdAt": "2026-05-04T17:48:13.000Z",
+      "updatedAt": "2026-05-05T00:40:04.000Z"
+    },
 
 3. Get All Requests (Admin Panel)
 সিস্টেমের সব ইউজারের সব ধরনের রিকোয়েস্ট লিস্ট দেখার জন্য।
@@ -760,70 +762,7 @@ Example:
         }
     },
     "recentActivity": [
-        {
-            "id": 5,
-            "transactionId": null,
-            "userId": 32,
-            "type": "deposit",
-            "amount": "23425.00",
-            "status": "success",
-            "description": "Money request approved via Dbbl. TransID: N/A",
-            "createdAt": "2026-05-03T17:30:01.000Z",
-            "updatedAt": "2026-05-03T17:30:01.000Z",
-            "User": {
-                "firstName": "kaj ",
-                "lastName": "jb",
-                "email": "subcriptionpay2@gmail.com"
-            }
-        },
-        {
-            "id": 4,
-            "transactionId": "hjsnfjf",
-            "userId": 8,
-            "type": "deposit",
-            "amount": "23425.00",
-            "status": "success",
-            "description": "Money request approved via Bk. TransID: hjsnfjf",
-            "createdAt": "2026-05-03T13:03:17.000Z",
-            "updatedAt": "2026-05-03T13:03:17.000Z",
-            "User": {
-                "firstName": "Mister ",
-                "lastName": "Person",
-                "email": "p@gmail.com"
-            }
-        },
-        {
-            "id": 3,
-            "transactionId": "bnjjjji",
-            "userId": 15,
-            "type": "deposit",
-            "amount": "1000.00",
-            "status": "success",
-            "description": "Money request approved via Bk. TransID: bnjjjji",
-            "createdAt": "2026-05-03T06:42:26.000Z",
-            "updatedAt": "2026-05-03T06:42:26.000Z",
-            "User": {
-                "firstName": "jnndf",
-                "lastName": "hdhhd",
-                "email": "h@gmail.com"
-            }
-        },
-        {
-            "id": 2,
-            "transactionId": "Fhjkjdfyuj",
-            "userId": 6,
-            "type": "deposit",
-            "amount": "333333.00",
-            "status": "success",
-            "description": "Money request approved via Bk. TransID: Fhjkjdfyuj",
-            "createdAt": "2026-05-01T17:33:47.000Z",
-            "updatedAt": "2026-05-01T17:33:47.000Z",
-            "User": {
-                "firstName": "rofik",
-                "lastName": "hossain",
-                "email": "r@gmail.com"
-            }
-        },
+        
         {
             "id": 1,
             "transactionId": "fgg",
@@ -842,6 +781,118 @@ Example:
         }
     ]
 }"
+
+
+
+
+
+
+14 User Verification API Documentation
+এই এপিআই-এর মাধ্যমে ইউজাররা তাদের ভেরিফিকেশন ডকুমেন্ট (NID/Passport/Driving License) আপলোড করতে পারবে এবং অ্যাডমিন সেগুলো ম্যানেজ করতে পারবে।
+
+1. Upload Verification Documents
+নতুন ভেরিফিকেশন ডকুমেন্ট জমা দেওয়ার জন্য। আইডি কার্ডের সামনের এবং পেছনের ছবি আলাদাভাবে আপলোড করতে হবে।
+URL: /verification/upload
+Method: POST
+Content-Type: multipart/form-data
+Fields:
+userId (Int): ইউজারের আইডি। [Required]
+docType (String): ডকুমেন্টের ধরন (nid, passport, driving_licence)। [Required]
+docNumber (String): আইডি কার্ড বা পাসপোর্ট নাম্বার। [Required]
+frontPartImage (File): ডকুমেন্টের সামনের ছবি। [Required]
+backPartImage (File): ডকুমেন্টের পেছনের ছবি। [Optional]
+Success Response (201):
+JSON
+{
+  "success": true,
+  "message": "Documents uploaded successfully. Waiting for admin approval.",
+  "data": {
+    "id": 5,
+    "userId": 10,
+    "docType": "nid",
+    "docNumber": "19982613...",
+    "frontPartUrl": "https://api.domain.com/public/uploads/docs/1714842550-4829.jpg",
+    "backPartUrl": "https://api.domain.com/public/uploads/docs/1714842550-5120.jpg",
+    "status": "pending"
+  }
+}
+2. Get My Verification Status
+ইউজার তার আপলোড করা ডকুমেন্টের বর্তমান অবস্থা দেখার জন্য।
+URL: /verification/my-status/:userId
+Method: GET
+Success Response (200):
+JSON
+{
+  "success": true,
+  "data": [
+    {
+      "id": 5,
+      "docType": "nid",
+      "status": "pending",
+      "adminComment": null,
+      "createdAt": "2026-05-05T..."
+    }
+  ]
+}
+3. Get All Pending Documents (Admin Only)
+অ্যাডমিন প্যানেলে দেখার জন্য সব পেন্ডিং রিকোয়েস্টের লিস্ট। এখানে ইউজারের তথ্যও থাকবে।
+URL: /verification/admin/all-pending
+Method: GET
+Success Response (200):
+JSON
+{
+  "success": true,
+  "data": [
+    {
+      "id": 5,
+      "docType": "nid",
+      "docNumber": "1998...",
+      "status": "pending",
+      "User": {
+        "firstName": "Rasel",
+        "lastName": "Mollah",
+        "email": "rasel@example.com",
+        "phone": "017XXXXXXXX"
+      }
+    }
+  ]
+}
+4. Update Verification Status (Admin Only)
+অ্যাডমিন ডকুমেন্ট যাচাই করে এপ্রুভ বা রিজেক্ট করবে।
+URL: /verification/admin/update-status/:id
+Method: PUT
+Body Type: application/json
+Request Body:
+JSON
+{
+  "status": "verified", 
+  "adminComment": "Information matches correctly."
+}
+// অথবা রিজেক্ট করলে
+{
+  "status": "rejected",
+  "adminComment": "Image is not clear, please upload again."
+}
+Success Response (200):
+JSON
+{
+  "success": true,
+  "message": "Document status updated to verified",
+  "data": {
+    "id": 5,
+    "status": "verified"
+  }
+}
+5. Delete Document Record
+কোনো ডকুমেন্ট রেকর্ড মুছে ফেলার জন্য। এটি ডাটাবেস থেকে ডাটা এবং সার্ভার থেকে ফাইল দুটিই ডিলিট করবে।
+URL: /verification/admin/delete/:id
+Method: DELETE
+Success Response (200):
+JSON
+{
+  "success": true,
+  "message": "Document record and files deleted"
+}
 
 
 
