@@ -266,6 +266,23 @@ RESPONSE:
 B. Get get user with user id
 EndPoint: /user/:id
 Method: GET
+Response: {
+    "success": true,
+    "data": {
+        "id": 2,
+        "firstName": "kk@gmail.com",
+        "lastName": "kk",
+        "email": "kk@gmail.com",
+        "phone": "6665",
+        "currencyId": 2,
+        "dateOfBirth": "2026-05-16",
+        "role": "user",
+        "status": "agent",
+        "type": "personal",
+        "createdAt": "2026-05-04T18:21:51.000Z",
+        "updatedAt": "2026-05-07T04:43:32.000Z"
+    }
+}
 
 C. Get Update user with user id 
 EndPoint: /user/:id
@@ -718,6 +735,37 @@ JSON
     ```
 
 ---
+
+6. Save-Fcm Token
+Endpoint: /notification/save-token
+Method: POST
+Payload: {
+  "userId": 0,
+  "token": "string..",
+  "platform": "'android', 'web', 'ios'"
+}
+
+Response: {
+  "success": true or false,
+  "message": "Token saved Successfuly" or "Token updated"
+}
+
+7. Remove Token: 
+Endpoint: /notification/remove-token
+Method: POST
+Payload: {
+  "token": "FCM string token"
+}
+
+Response: {
+  "message": "Token removed" or "Error removing token,
+}
+
+
+
+
+
+
 
 
 

@@ -1,5 +1,64 @@
-const { Notification, User } = require('../models');
+const { Notification, User, FcmToken } = require('../models');
 const { Op } = require('sequelize');
+const { sendAlert } = require('../config/firebase')
+
+
+
+
+
+exports.saveToken = async (req, res) => {
+    try {
+        const { userId, token, platform } = req.body;
+
+        if (!token || !platform) {
+            return res.status(400).json({ message: "Token and platform are required" });
+        }
+
+        // Upsert logic: Update if exists, create if not
+        const [fcmToken, created] = await FcmToken.findOrCreate({
+            where: { token: token },
+            defaults: {
+                userId: userId,
+                platform: platform
+            }
+        });
+
+        if (!created && fcmToken.userId !== userId) {
+            // If token exists but belongs to a different user (e.g., re-assigned phone)
+            fcmToken.userId = userId;
+            await fcmToken.save();
+        }
+
+        await sendAlert(
+            token,
+            "New Payment",
+            "You received $50.00",
+            "http://localhost:5500/" // Specific page or fragment
+        );
+
+        res.status(200).json({
+            success: true,
+            message: created ? "Token saved successfully" : "Token updated"
+        });
+    } catch (error) {
+        console.error("FCM Token Error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+exports.removeToken = async (req, res) => {
+    try {
+        const { token } = req.body;
+        await FcmToken.destroy({ where: { token: token } });
+        res.status(200).json({ message: "Token removed" });
+    } catch (error) {
+        res.status(500).json({ message: "Error removing token" });
+    }
+};
+
+
+
+
 
 // ১. নোটিফিকেশন তৈরি করা (অ্যাডমিন)
 exports.createNotification = async (req, res) => {
@@ -68,3 +127,4 @@ exports.deleteNotification = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+

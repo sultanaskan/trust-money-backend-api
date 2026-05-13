@@ -10,23 +10,25 @@ const MoneyRequest = require('./MoneyRequest');
 const BannerUpload = require('./BannerUpload');
 const Notification = require('./Notification');
 const UserVerificationDocs = require('./UserVerificationDocs');
+const FcmToken = require("./FcmToken")
 
 
 
 // ১. User এবং MoneyRequest এর সম্পর্ক
-User.hasMany(MoneyRequest, {foreignKey: 'userId',onDelete: 'CASCADE' });
-MoneyRequest.belongsTo(User, {foreignKey: 'userId'});
+User.hasMany(MoneyRequest, { foreignKey: 'userId', onDelete: 'CASCADE' });
+MoneyRequest.belongsTo(User, { foreignKey: 'userId' });
 
 // User এবং Transaction এর সম্পর্ক
-User.hasMany(Transaction, {foreignKey: 'userId',onDelete: 'CASCADE'});
-Transaction.belongsTo(User, {foreignKey: 'userId'});
+User.hasMany(Transaction, { foreignKey: 'userId', onDelete: 'CASCADE' });
+Transaction.belongsTo(User, { foreignKey: 'userId' });
 
 // Wallet এবং User এর সম্পর্ক (এটিও ড্যাশবোর্ডের জন্য প্রয়োজন হবে)
-User.hasOne(Wallet, {foreignKey: 'userId',onDelete: 'CASCADE'});
-Wallet.belongsTo(User, {foreignKey: 'userId'});
+User.hasOne(Wallet, { foreignKey: 'userId', onDelete: 'CASCADE' });
+Wallet.belongsTo(User, { foreignKey: 'userId' });
 
-User.hasMany(UserVerificationDocs, {foreignKey: 'userId'})
-UserVerificationDocs.belongsTo(User, {foreignKey: 'userId'})
+User.hasMany(UserVerificationDocs, { foreignKey: 'userId' })
+UserVerificationDocs.belongsTo(User, { foreignKey: 'userId' })
+
 
 
 
@@ -43,5 +45,6 @@ module.exports = {
     MoneyRequest,
     BannerUpload,
     Notification,
-    UserVerificationDocs
+    UserVerificationDocs,
+    FcmToken
 };

@@ -1,6 +1,7 @@
-const { User, Wallet } = require('../models'); // আপনার পাথ অনুযায়ী ইমপোর্ট করুন
+const { User, Wallet, FcmToken } = require('../models'); // আপনার পাথ অনুযায়ী ইমপোর্ট করুন
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
+const { sendAlert } = require("../config/firebase")
 
 
 exports.register = async (req, res) => {
@@ -47,6 +48,40 @@ exports.register = async (req, res) => {
             userId: user.id,
             balance: 0.00
         });
+
+        // ১. প্রথমে অ্যাডমিন ইউজার খুঁজুন
+        const admin = await User.findOne({ where: { role: "admin" } });
+
+        // ২. চেক করুন অ্যাডমিন পাওয়া গেছে কিনা
+        if (!admin) {
+            console.error("❌ No admin user found in the database.");
+            // এখানে আপনি রিটার্ন করতে পারেন বা এরর হ্যান্ডেল করতে পারেন
+            return;
+        }
+
+        // ৩. অ্যাডমিনের টোকেন খুঁজুন
+        const tokenData = await FcmToken.findOne({
+            where: {
+                userId: admin.id,
+                platform: 'web' // স্পেসিফিক প্ল্যাটফর্ম মেনশন করা ভালো
+            }
+        });
+
+        if (!tokenData) {
+            console.error("❌ FCM Token not found for admin:", admin.id);
+            return;
+        }
+
+        // ৪. এখন আপনি tokenData.token ব্যবহার করে sendAlert পাঠাতে পারেন
+        console.log("✅ Admin Token found:", tokenData.token);
+
+
+        await sendAlert(
+            "cGL11HUB44PLJUfCz7qQyn:APA91bHF5FxHDwvOYAyi2HO7nlo6b9LAdAr_IZALny7JcveeXk9EHRvjdnEpgj_wLnrc6bPWzaGE0XmzT6qi-r1hBwJnwEjw7YvsOOI_TvTcmyJqBhMlGRE",
+            "Wow! User Registered",
+            "New user registered successfully. \n Name is: " + firstName + lastName + "\n Email: " + email + "\n Phone: " + phone,
+            "http://localhost:5500/" // Specific page or fragment
+        );
 
         res.status(201).json({
             message: "User registered successfully",
