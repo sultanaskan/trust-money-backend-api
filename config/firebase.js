@@ -4,11 +4,11 @@ const path = require("path");
 
 
 try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    // Private key-এর newline ক্যারেক্টার ঠিক করা
-    if (serviceAccount.private_key) {
-        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-    }
+    // config/firebase.js
+    const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT;
+    // \n কে ম্যানুয়ালি হ্যান্ডেল করা
+    const cleanJsonString = serviceAccountString.replace(/\\n/g, '\\n');
+    const serviceAccount = JSON.parse(cleanJsonString);
     if (!admin.apps.length) {
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount)
