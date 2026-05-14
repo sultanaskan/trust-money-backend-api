@@ -53,13 +53,11 @@ exports.register = async (req, res) => {
 
         // ১. প্রথমে অ্যাডমিন ইউজার খুঁজুন
         const admin = await User.findOne({ where: { role: "admin" } });
-
         // ২. চেক করুন অ্যাডমিন পাওয়া গেছে কিনা
         if (!admin) {
             console.error("❌ No admin user found in the database.");
             return;
         }
-
         // ৩. অ্যাডমিনের সব টোকেন খুঁজুন (findAll ব্যবহার করা হয়েছে যাতে সব ডিভাইস পাওয়া যায়)
         const tokenEntries = await FcmToken.findAll({
             where: {
@@ -67,7 +65,6 @@ exports.register = async (req, res) => {
                 // এখানে platform filter সরিয়ে দিলে সব ডিভাইসেই (web, android, ios) যাবে
             }
         });
-
         // ৪. চেক করুন টোকেন আছে কিনা
         if (!tokenEntries || tokenEntries.length === 0) {
             console.error("❌ No FCM Tokens found for admin:", admin.id);
@@ -75,8 +72,6 @@ exports.register = async (req, res) => {
         }
 
         console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
-
-        // ৫. লুপ চালিয়ে প্রতিটি ডিভাইসে অ্যালার্ট পাঠান
         // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
         await Promise.all(tokenEntries.map(entry => {
             return sendAlert(

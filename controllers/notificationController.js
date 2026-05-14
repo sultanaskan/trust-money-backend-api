@@ -3,17 +3,12 @@ const { Op } = require('sequelize');
 const { sendAlert } = require('../config/firebase')
 
 
-
-
-
 exports.saveToken = async (req, res) => {
     try {
         const { userId, token, platform } = req.body;
-
         if (!token || !platform) {
             return res.status(400).json({ message: "Token and platform are required" });
         }
-
         // Upsert logic: Update if exists, create if not
         const [fcmToken, created] = await FcmToken.findOrCreate({
             where: { token: token },
