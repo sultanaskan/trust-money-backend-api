@@ -1,15 +1,25 @@
 const admin = require("firebase-admin");
 const path = require("path");
 
-// 1. Initialize the SDK
-const serviceAccount = require("./serviceAccountKey.json");
 
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-    console.log("✅ Firebase Admin SDK Initialized");
+
+try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    // Private key-এর newline ক্যারেক্টার ঠিক করা
+    if (serviceAccount.private_key) {
+        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+    }
+    if (!admin.apps.length) {
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+        console.log("✅ Firebase Admin SDK Initialized");
+    }
+} catch (error) {
+    console.error("❌ Firebase Initialization Error:", error.message);
 }
+
+
 
 /**
  * Helper function to send a notification
