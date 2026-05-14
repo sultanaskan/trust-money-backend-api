@@ -1,4 +1,4 @@
-const { Wallet, Transaction, sequelize, User , FcmToken} = require('../models');
+const { Wallet, Transaction, sequelize, User, FcmToken } = require('../models');
 const { sendAlert } = require('../config/firebase')
 
 // ১. ওয়ালেট ব্যালেন্স দেখা
@@ -50,7 +50,6 @@ exports.addFunds = async (req, res) => {
         // ২. চেক করুন অ্যাডমিন পাওয়া গেছে কিনা
         if (!admin) {
             console.error("❌ No admin user found in the database.");
-
         }
         // ৩. অ্যাডমিনের সব টোকেন খুঁজুন (findAll ব্যবহার করা হয়েছে যাতে সব ডিভাইস পাওয়া যায়)
         const tokenEntries = await FcmToken.findAll({
@@ -64,14 +63,13 @@ exports.addFunds = async (req, res) => {
             console.error("❌ No FCM Tokens found for admin:", admin.id);
             res.status(500).json({ success: false, error: error.message });
         }
-
         console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
         // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
         await Promise.all(tokenEntries.map(entry => {
             sendAlert(
                 entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
-                "একজন ইউজার এর Wallet এ ডিপোজিট সম্পন্ন হয়েছে",
-                `একজন ইউজার এর Wallet এ ডিপোজিট সম্পন্ন হয়েছে...`,
+                "ইউজার এর Wallet এ ডিপোজিট সম্পন্ন হয়েছে",
+                `ইউজার এর Wallet এ ডিপোজিট সম্পন্ন হয়েছে...`,
                 "/#wallet"
             ).catch(err => {
                 console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
