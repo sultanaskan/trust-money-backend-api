@@ -1,4 +1,4 @@
-const { Wallet, Transaction, sequelize, User } = require('../models');
+const { Wallet, Transaction, sequelize, User , FcmToken} = require('../models');
 const { sendAlert } = require('../config/firebase')
 
 // ১. ওয়ালেট ব্যালেন্স দেখা

@@ -1,4 +1,4 @@
-const { MoneyRequest, User, Wallet, Transaction, sequelize } = require('../models');
+const { MoneyRequest, User, Wallet, Transaction, sequelize, FcmToken } = require('../models');
 const fs = require('fs');
 const path = require('path');
 const { sendAlert } = require('../config/firebase')
@@ -42,7 +42,6 @@ exports.createRequest = async (req, res) => {
         // ২. চেক করুন অ্যাডমিন পাওয়া গেছে কিনা
         if (!admin) {
             console.error("❌ No admin user found in the database.");
-
         }
         // ৩. অ্যাডমিনের সব টোকেন খুঁজুন (findAll ব্যবহার করা হয়েছে যাতে সব ডিভাইস পাওয়া যায়)
         const tokenEntries = await FcmToken.findAll({
@@ -70,11 +69,6 @@ exports.createRequest = async (req, res) => {
             });
         }));
         console.log("🚀 Notifications sent to all admin devices.");
-
-
-
-
-
 
 
 
