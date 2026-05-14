@@ -49,39 +49,50 @@ exports.register = async (req, res) => {
             balance: 0.00
         });
 
+
+
         // ১. প্রথমে অ্যাডমিন ইউজার খুঁজুন
         const admin = await User.findOne({ where: { role: "admin" } });
 
-        // ২. চেক করুন অ্যাডমিন পাওয়া গেছে কিনা
+        // ২. চেক করুন অ্যাডমিন পাওয়া গেছে কিনা
         if (!admin) {
             console.error("❌ No admin user found in the database.");
-            // এখানে আপনি রিটার্ন করতে পারেন বা এরর হ্যান্ডেল করতে পারেন
             return;
         }
 
-        // ৩. অ্যাডমিনের টোকেন খুঁজুন
-        const tokenData = await FcmToken.findOne({
+        // ৩. অ্যাডমিনের সব টোকেন খুঁজুন (findAll ব্যবহার করা হয়েছে যাতে সব ডিভাইস পাওয়া যায়)
+        const tokenEntries = await FcmToken.findAll({
             where: {
-                userId: admin.id,
-                platform: 'web' // স্পেসিফিক প্ল্যাটফর্ম মেনশন করা ভালো
+                userId: admin.id
+                // এখানে platform filter সরিয়ে দিলে সব ডিভাইসেই (web, android, ios) যাবে
             }
         });
 
-        if (!tokenData) {
-            console.error("❌ FCM Token not found for admin:", admin.id);
+        // ৪. চেক করুন টোকেন আছে কিনা
+        if (!tokenEntries || tokenEntries.length === 0) {
+            console.error("❌ No FCM Tokens found for admin:", admin.id);
             return;
         }
 
-        // ৪. এখন আপনি tokenData.token ব্যবহার করে sendAlert পাঠাতে পারেন
-        console.log("✅ Admin Token found:", tokenData.token);
+        console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
+
+        // ৫. লুপ চালিয়ে প্রতিটি ডিভাইসে অ্যালার্ট পাঠান
+        // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
+        await Promise.all(tokenEntries.map(entry => {
+            return sendAlert(
+                entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
+                "Wow! User Registered",
+                `New user registered successfully.\nName is: ${firstName} ${lastName}\nEmail: ${email}\nPhone: ${phone}`,
+                "#users"
+            ).catch(err => {
+                console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
+            });
+        }));
+
+        console.log("🚀 Notifications sent to all admin devices.");
 
 
-        await sendAlert(
-            "cGL11HUB44PLJUfCz7qQyn:APA91bHF5FxHDwvOYAyi2HO7nlo6b9LAdAr_IZALny7JcveeXk9EHRvjdnEpgj_wLnrc6bPWzaGE0XmzT6qi-r1hBwJnwEjw7YvsOOI_TvTcmyJqBhMlGRE",
-            "Wow! User Registered",
-            "New user registered successfully. \n Name is: " + firstName + lastName + "\n Email: " + email + "\n Phone: " + phone,
-            "http://localhost:5500/" // Specific page or fragment
-        );
+
 
         res.status(201).json({
             message: "User registered successfully",

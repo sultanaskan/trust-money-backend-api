@@ -31,9 +31,9 @@ exports.saveToken = async (req, res) => {
 
         await sendAlert(
             token,
-            "New Payment",
-            "You received $50.00",
-            "http://localhost:5500/" // Specific page or fragment
+            "Push notification confirm",
+            "Your device registered successfully to recive notification! ",
+            "" // Specific page or fragment
         );
 
         res.status(200).json({
