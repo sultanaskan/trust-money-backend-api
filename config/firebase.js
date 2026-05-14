@@ -1,25 +1,19 @@
 const admin = require("firebase-admin");
 const path = require("path");
 
+// .env থেকে স্ট্রিংটি নিয়ে এসে JSON অবজেক্টে রূপান্তর করা
+const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('utf8'));
+;
 
+// Private Key-এর \n (newline) ক্যারেক্টারগুলো ঠিক করা (খুবই জরুরি)
+serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 
-try {
-    // config/firebase.js
-    const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT;
-    // \n কে ম্যানুয়ালি হ্যান্ডেল করা
-    const cleanJsonString = serviceAccountString.replace(/\\n/g, '\\n');
-    const serviceAccount = JSON.parse(cleanJsonString);
-    if (!admin.apps.length) {
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
-        });
-        console.log("✅ Firebase Admin SDK Initialized");
-    }
-} catch (error) {
-    console.error("❌ Firebase Initialization Error:", error.message);
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
+    console.log("✅ Firebase Admin SDK Initialized");
 }
-
-
 
 /**
  * Helper function to send a notification
