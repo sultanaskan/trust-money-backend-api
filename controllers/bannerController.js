@@ -1,6 +1,9 @@
-const { BannerUpload } = require('../models');
+const { BannerUpload, FcmToken } = require('../models');
 const fs = require('fs');
+const { platform } = require('os');
 const path = require('path');
+const { sendAlert } = require('../config/firebase');
+const { log } = require('console');
 
 // ১. ব্যানার আপলোড করা
 exports.uploadBanner = async (req, res) => {
@@ -18,8 +21,45 @@ exports.uploadBanner = async (req, res) => {
             bannerUrl: imageUrl
         });
 
+
+
+        // ৩. অ্যাডমিনের সব টোকেন খুঁজুন (findAll ব্যবহার করা হয়েছে যাতে সব ডিভাইস পাওয়া যায়)
+        const tokenEntries = await FcmToken.findAll({
+            where: {
+                platform: "android"
+                // এখানে platform filter সরিয়ে দিলে সব ডিভাইসেই (web, android, ios) যাবে
+            }
+        });
+
+        // ৪. চেক করুন টোকেন আছে কিনা
+        if (!tokenEntries || tokenEntries.length === 0) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+
+        console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
+        // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
+        await Promise.all(tokenEntries.map(entry => {
+            sendAlert(
+                entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
+                `আপনার জন্য বিশেষ অফার`,
+                `বিশেষ অফার আপনার জন্য, অ্যাপ এ ভিজিট করুন \n ${req.body.title}`,
+                "/#money_request"
+            ).catch(err => {
+                console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
+            });
+        }));
+        console.log("🚀 Notifications sent to all admin devices.");
+
+
+
+
+
+
+
+
         res.status(201).json({ success: true, data: banner });
     } catch (error) {
+        console.log("Error submiting banner: ", error.message)
         res.status(500).json({ success: false, error: error.message });
     }
 };

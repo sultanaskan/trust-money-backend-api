@@ -61,8 +61,8 @@ exports.createRequest = async (req, res) => {
         await Promise.all(tokenEntries.map(entry => {
             sendAlert(
                 entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
-                "নতুন এড মানি রিকুয়েস্ট ",
-                `একজন ইউজার নতুন এড মানি রিকুয়েস্ট দিয়েছেন, এডমিন পেনেলে ডুকে দ্রুত চেক করে আপ্রোভ করুন...`,
+                `নতুন ${type} রিকুয়েস্ট `,
+                `একজন ইউজার নতুন ${type} রিকুয়েস্ট দিয়েছেন, এডমিন পেনেলে ডুকে দ্রুত চেক করে আপ্রোভ করুন...`,
                 "/#money_request"
             ).catch(err => {
                 console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
@@ -178,6 +178,35 @@ exports.updateStatus = async (req, res) => {
 
         await request.update({ status }, { transaction: t });
         await t.commit();
+
+
+
+
+
+        const tokenEntries = await FcmToken.findAll({
+            where: {
+                userId: request.userId,
+                platform: "android"
+                // এখানে platform filter সরিয়ে দিলে সব ডিভাইসেই (web, android, ios) যাবে
+            }
+        });
+        // ৪. চেক করুন টোকেন আছে কিনা
+        if (!tokenEntries || tokenEntries.length === 0) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+        console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
+        // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
+        await Promise.all(tokenEntries.map(entry => {
+            sendAlert(
+                entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
+                `অভিনন্দন, আপনার ট্রানজেকশন সম্পন্ন হয়েছে`,
+                ` আপনার ট্রানজেকশন ${status} হয়েছে...`,
+                "/#money_request"
+            ).catch(err => {
+                console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
+            });
+        }));
+        console.log("🚀 Notifications sent to all admin devices.");
 
         res.status(200).json({
             success: true,

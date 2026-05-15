@@ -1,6 +1,7 @@
-const { PaymentMethod } = require('../models'); // আপনার পাথ অনুযায়ী ইমপোর্ট করুন
+const { PaymentMethod, FcmToken } = require('../models'); // আপনার পাথ অনুযায়ী ইমপোর্ট করুন
 const fs = require("fs")
 const path = require("path")
+const { sendAlert } = require("../config/firebase")
 
 // ১. নতুন পেমেন্ট মেথড তৈরি করা (Create)
 exports.createPaymentMethod = async (req, res) => {
@@ -22,6 +23,38 @@ exports.createPaymentMethod = async (req, res) => {
             paymentGuide,
             status
         });
+
+
+
+
+        const tokenEntries = await FcmToken.findAll({
+            where: {
+                platform: "android"
+                // এখানে platform filter সরিয়ে দিলে সব ডিভাইসেই (web, android, ios) যাবে
+            }
+        });
+
+        // ৪. চেক করুন টোকেন আছে কিনা
+        if (!tokenEntries || tokenEntries.length === 0) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+
+        console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
+        // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
+        await Promise.all(tokenEntries.map(entry => {
+            sendAlert(
+                entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
+                `Trust Money তে নতুন পেমেন্ট মেথড যুক্ত হয়েছে`,
+                `এখন থেকে আপনি ${providerName} এর মাধ্যমেও টাকা পাঠানে পারবেন।`,
+                "/#money_request"
+            ).catch(err => {
+                console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
+            });
+        }));
+        console.log("🚀 Notifications sent to all admin devices.");
+
+
+
 
         res.status(201).json({
             success: true,

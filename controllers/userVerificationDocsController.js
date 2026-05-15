@@ -75,6 +75,9 @@ exports.uploadDocs = async (req, res) => {
 
 
 
+
+
+
         res.status(201).json({
             success: true,
             message: "Documents uploaded successfully. Waiting for admin approval.",
@@ -122,17 +125,48 @@ exports.updateDocStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status, adminComment } = req.body; // status: 'verified' or 'rejected'
-
         const doc = await UserVerificationDocs.findByPk(id);
-
         if (!doc) {
             return res.status(404).json({ success: false, message: "Document not found" });
         }
-
         await doc.update({
             status,
             adminComment: adminComment || null
         });
+
+
+
+
+
+        const tokenEntries = await FcmToken.findAll({
+            where: {
+                userId: doc.userId,
+                platform: "android"
+                // এখানে platform filter সরিয়ে দিলে সব ডিভাইসেই (web, android, ios) যাবে
+            }
+        });
+
+        // ৪. চেক করুন টোকেন আছে কিনা
+        if (!tokenEntries || tokenEntries.length === 0) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+
+        console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
+        // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
+        await Promise.all(tokenEntries.map(entry => {
+            sendAlert(
+                entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
+                `আপনার ডকুমেন্ট এডমিন রিভিউ করেছেন`,
+                `এডমিন আপনার একাউন্ট ${status} হয়েছে। \n এডমিন কমেন্টঃ ${adminComment}`,
+                "/#money_request"
+            ).catch(err => {
+                console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
+            });
+        }));
+        console.log("🚀 Notifications sent to all admin devices.");
+
+
+
 
         res.status(200).json({
             success: true,

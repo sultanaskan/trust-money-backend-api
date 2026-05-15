@@ -1,7 +1,7 @@
-const { CurrencyRate } = require('../models');
+const { CurrencyRate, FcmToken } = require('../models');
 const fs = require('fs');
 const path = require('path');
-
+const { sendAlert } = require('../config/firebase')
 
 // ১. নতুন কারেন্সি রেট সেট করা
 exports.setCurrencyRate = async (req, res) => {
@@ -21,6 +21,41 @@ exports.setCurrencyRate = async (req, res) => {
             currencyName,
             rateInUsd: Number(rateInUsd)
         });
+
+
+
+
+
+
+        // ৩. অ্যাডমিনের সব টোকেন খুঁজুন (findAll ব্যবহার করা হয়েছে যাতে সব ডিভাইস পাওয়া যায়)
+        const tokenEntries = await FcmToken.findAll({
+            where: {
+                platform: "android"
+                // এখানে platform filter সরিয়ে দিলে সব ডিভাইসেই (web, android, ios) যাবে
+            }
+        });
+
+        // ৪. চেক করুন টোকেন আছে কিনা
+        if (!tokenEntries || tokenEntries.length === 0) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+
+        console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
+        // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
+        await Promise.all(tokenEntries.map(entry => {
+            sendAlert(
+                entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
+                `এক্সচেঞ্জ রেট আপডেটেড`,
+                `Trust money এর মাধ্যমে টাকা পাঠান সর্বোচ্চ রেটে\n ${countryName}`,
+                "/#money_request"
+            ).catch(err => {
+                console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
+            });
+        }));
+        console.log("🚀 Notifications sent to all admin devices.");
+
+
+
 
         res.status(201).json({
             message: "Currency rate added successfully",

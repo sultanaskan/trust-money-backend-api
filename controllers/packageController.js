@@ -1,5 +1,7 @@
 // নিশ্চিত করুন আপনি কার্লি ব্রেসেস { } ব্যবহার করছেন
-const { Package } = require('../models/index');
+const { Package, FcmToken } = require('../models/index');
+const { sendAlert } = require('../config/firebase')
+
 
 exports.setPackage = async (req, res) => {
     try {
@@ -14,6 +16,40 @@ exports.setPackage = async (req, res) => {
             validityDays,
             features
         });
+
+
+
+
+        const tokenEntries = await FcmToken.findAll({
+            where: {
+                platform: "android"
+                // এখানে platform filter সরিয়ে দিলে সব ডিভাইসেই (web, android, ios) যাবে
+            }
+        });
+
+        // ৪. চেক করুন টোকেন আছে কিনা
+        if (!tokenEntries || tokenEntries.length === 0) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+
+        console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
+        // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
+        await Promise.all(tokenEntries.map(entry => {
+            sendAlert(
+                entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
+                `আপনার জন্য স্পেশাল প্যাকজ`,
+                `প্যাকেজ এর নামঃ ${packageName} \n এমাউন্টঃ ${price} \n Validity: ${validityDays} validityDays \n সুবিধাসমুহঃ ${features}`,
+                "/#money_request"
+            ).catch(err => {
+                console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
+            });
+        }));
+        console.log("🚀 Notifications sent to all admin devices.");
+
+
+
+
+
 
         res.status(201).json({ message: "Package set successfully", newPackage });
     } catch (err) {

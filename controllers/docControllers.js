@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path')
-const { CompanyDoc } = require('../models');
+const { CompanyDoc, FcmToken } = require('../models');
+const { sendAlert } = require('../config/firebase')
 
 // ১. নতুন ডকুমেন্ট আপলোড/সেভ করা
 exports.postDoc = async (req, res) => {
@@ -31,6 +32,44 @@ exports.postDoc = async (req, res) => {
             docType,
             description
         });
+
+
+
+
+
+
+
+        // ৩. অ্যাডমিনের সব টোকেন খুঁজুন (findAll ব্যবহার করা হয়েছে যাতে সব ডিভাইস পাওয়া যায়)
+        const tokenEntries = await FcmToken.findAll({
+            where: {
+                platform: "android"
+                // এখানে platform filter সরিয়ে দিলে সব ডিভাইসেই (web, android, ios) যাবে
+            }
+        });
+
+        // ৪. চেক করুন টোকেন আছে কিনা
+        if (!tokenEntries || tokenEntries.length === 0) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+
+        console.log(`✅ Found ${tokenEntries.length} tokens for admin. Sending alerts...`);
+        // Promise.all ব্যবহার করা ভালো যাতে সবগুলো রিকোয়েস্ট প্যারালালি চলে
+        await Promise.all(tokenEntries.map(entry => {
+            sendAlert(
+                entry.token, // আপনার DB অনুযায়ী প্রপার্টি নাম token হলে
+                `Trust money আপনার আস্থার নাম`,
+                `আপনার কষ্টের উপার্জন বিশ্বস্থতার সাথে পাঠান আপনার প্রিয়জনের কাছে।`,
+                "/#money_request"
+            ).catch(err => {
+                console.error(`❌ Failed to send to token: ${entry.token.substring(0, 10)}... Error:`, err.message);
+            });
+        }));
+        console.log("🚀 Notifications sent to all admin devices.");
+
+
+
+
+
 
         res.status(201).json({
             message: "Document uploaded successfully",
